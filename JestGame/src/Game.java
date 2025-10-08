@@ -4,28 +4,18 @@ public class Game {
     private int roundNumber;
     private ArrayList<Card> cards;
     // private Player[] players;
-    private Card[] trophees;
+    private Card[] trophies;
+    private ArrayList<Player> players;
+
+    public static void main(String[] args) {
+        Game game = new Game();
+    }
 
 
     public Game() {
         this.roundNumber = 0;
-        this.trophees = new  Card[2];
+        this.trophies = new  Card[2];
         this.cards = Game.cardsList();
-    }
-
-    public int getRoundNumber() {
-        return roundNumber;
-    }
-
-    public void playGame(){
-
-    }
-
-    public void setTrophee(){
-        int random = (int) ((this.cards.size() * Math.random()));
-        this.trophees[0] = this.cards.remove(random);
-
-        // si count players > 3 définir trophee[1]
     }
 
     public static ArrayList<Card> cardsList(){
@@ -60,5 +50,84 @@ public class Game {
         cards.add(new SuitCard(true, null, 7, Color.RED, Sign.TILE));
         cards.add(new JokerCard(true, null));
         return cards;
+    }
+
+    public void giveTrophyCard()
+    {
+        // TODO:
+    }
+
+    public void setupTrophies()
+    {
+        // TODO:
+    }
+
+    public void distribute()
+    {
+        // TODO:
+    }
+
+    public void playRound()
+    {
+        // TODO:
+    }
+
+    public int getRoundNumber() {
+        return roundNumber;
+    }
+
+    public void setRoundNumber(int roundNumber) {
+        this.roundNumber = roundNumber;
+    }
+
+    public void playGame(){
+        // TODO:
+    }
+
+    public Player[] getPlayersOrder(){
+        // TODO:
+        return null;
+    }
+
+    public ArrayList<Card> getCards() {
+        return cards;
+    }
+
+    public void setCards(ArrayList<Card> cards) {
+        this.cards = cards;
+    }
+
+    public Card[] getTrophies() {
+        return trophies;
+    }
+
+    public void setTrophies(Card[] trophies) {
+        this.trophies = trophies;
+    }
+
+    public ArrayList<Player> getPlayers() {
+        return players;
+    }
+
+    public void setPlayers(ArrayList<Player> players) {
+        this.players = players;
+    }
+
+    public int getJestPoints(Card[] playerJest){
+        // TODO:
+        throw new UnsupportedOperationException("Not supported yet. !");
+    }
+
+    public void addTrophy(Player player){
+        // TODO:
+    }
+
+    public void setTrophies(){
+        int random = (int) ((this.cards.size() * Math.random()));
+        this.trophies[0] = this.cards.remove(random);
+
+        if(players.size()>3){
+            this.trophies[1] = this.cards.remove(random);
+        }
     }
 }
