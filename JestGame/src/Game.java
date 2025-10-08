@@ -27,6 +27,17 @@ public class Game {
         System.out.println("Now, let's determine the first player that play ...");
         Player startingPlayer = game.getPlayersOrder();
         System.out.println("The player that start is " + startingPlayer.getName());
+        System.out.println(startingPlayer.getName() + ", which card do you want to pick ?");
+        int cardNumber = 1;
+        for(Player player : game.getPlayers()){
+            if(player.getOffer().length == 2){
+                System.out.println(player.getName() + ": "+"("+cardNumber+") " +player.getVisibleCard()+"("+(cardNumber+1)+") "+" hidden card 🫣");
+                cardNumber+=2;
+            }
+            else{
+                System.out.println(player.getName() + " has only 1 card");
+            }
+        }
     }
 
 
