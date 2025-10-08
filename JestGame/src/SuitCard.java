@@ -10,6 +10,16 @@ public class SuitCard extends Card{
         this.sign = sign;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder text = new StringBuilder();
+        text.append(this.value + " ");
+        text.append(this.color.toString() + " ");
+        text.append(this.sign.toString() + " ");
+        text.append("\n");
+        return text.toString();
+    }
+
     public int getValue() {
         return value;
     }

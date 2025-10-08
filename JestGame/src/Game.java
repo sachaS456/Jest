@@ -1,4 +1,7 @@
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Scanner;
 
 public class Game {
     private int roundNumber;
@@ -8,7 +11,22 @@ public class Game {
     private ArrayList<Player> players;
 
     public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
         Game game = new Game();
+        System.out.println("Welcome to Jest Game!");
+        System.out.println("How many players want to play ?");
+        int playerNumber = scanner.nextInt();
+        for(int i = 0; i < playerNumber; i++){
+            System.out.println("Player " + (i + 1) + ", what's your name?:");
+            String playerName = scanner.next();
+            game.addPlayer(new Player(playerName));
+        }
+        game.setTrophies();
+        System.out.println("Let's give the cards, please don't watch the chosen hidden card of the player !");
+        game.distribute();
+        System.out.println("Now, let's determine the first player that play ...");
+        Player startingPlayer = game.getPlayersOrder();
+        System.out.println("The player that start is " + startingPlayer.getName());
     }
 
 
@@ -16,6 +34,7 @@ public class Game {
         this.roundNumber = 0;
         this.trophies = new  Card[2];
         this.cards = Game.cardsList();
+        this.players = new ArrayList<>();
     }
 
     public static ArrayList<Card> cardsList(){
@@ -52,19 +71,35 @@ public class Game {
         return cards;
     }
 
-    public void giveTrophyCard()
-    {
-        // TODO:
+    public void addPlayer(Player player){
+        this.players.add(player);
     }
 
-    public void setupTrophies()
+    public void giveTrophyCard()
     {
         // TODO:
     }
 
     public void distribute()
     {
-        // TODO:
+        Scanner scanner = new Scanner(System.in);
+        for(Player player : this.players){
+            int random = (int) ((this.cards.size() * Math.random()));
+            Card card1 = this.cards.remove(random);
+            random = (int) ((this.cards.size() * Math.random()));
+            Card card2 = this.cards.remove(random);
+            System.out.println(player.getName() + ", which card do you want to hide ? (1, 2)");
+            System.out.println("(1) Card 1: " + card1);
+            System.out.println("(2) Card 2: " + card2);
+            int cardToHide = scanner.nextInt();
+            if(cardToHide == 1){
+                player.setHiddenCard(card1);
+                player.setVisibleCard(card2);
+            }else {
+                player.setHiddenCard(card2);
+                player.setVisibleCard(card1);
+            }
+        }
     }
 
     public void playRound()
@@ -84,10 +119,32 @@ public class Game {
         // TODO:
     }
 
-    public Player[] getPlayersOrder(){
-        // TODO:
-        return null;
+    public Player getPlayersOrder() {
+        Player highScorePlayer = null;
+        for(Player player : this.players){
+            // the starting player can't have the Joker because it is the only card valued at 0
+            if(!(player.getVisibleCard() instanceof JokerCard)){
+                if(highScorePlayer == null){
+                    highScorePlayer = player;
+                }
+                SuitCard highScorePlayerVisibleCard = (SuitCard) highScorePlayer.getVisibleCard();
+                SuitCard playerVisibleCard = (SuitCard) player.getVisibleCard();
+                if(playerVisibleCard.getValue() > highScorePlayerVisibleCard.getValue()){
+                    highScorePlayer = player;
+                }else if(playerVisibleCard.getValue() == highScorePlayerVisibleCard.getValue()){
+                    Sign[] cardsSignOrder = {Sign.HEARTH, Sign.TILE, Sign.CLOVER, Sign.SPIKE};
+                    List<Sign> signOrderList = Arrays.asList(cardsSignOrder);
+                    int playerCardIndex = signOrderList.indexOf(playerVisibleCard.getSign());
+                    int highScorePlayerCardIndex = signOrderList.indexOf(highScorePlayerVisibleCard.getSign());
+                    if(playerCardIndex > highScorePlayerCardIndex){
+                        highScorePlayer = player;
+                    }
+                }
+            }
+        }
+        return highScorePlayer;
     }
+
 
     public ArrayList<Card> getCards() {
         return cards;
@@ -127,6 +184,7 @@ public class Game {
         this.trophies[0] = this.cards.remove(random);
 
         if(players.size()>3){
+            random = (int) ((this.cards.size() * Math.random()));
             this.trophies[1] = this.cards.remove(random);
         }
     }

@@ -110,6 +110,7 @@ public class Player {
     }
 
     public void setHiddenCard(Card hiddenCard) {
+        hiddenCard.setVisible(false);
         this.offer[1] = hiddenCard;
     }
 
@@ -129,5 +130,13 @@ public class Player {
         }else {
             System.out.println("You still have two cards in your offer");
         }
+    }
+
+    public Card getVisibleCard() {
+        return this.offer[0];
+    }
+
+    public Card getHiddenCard() {
+        return this.offer[1];
     }
 }
