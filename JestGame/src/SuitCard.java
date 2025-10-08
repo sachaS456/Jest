@@ -3,8 +3,8 @@ public class SuitCard extends Card{
     private Color color;
     private Sign sign;
 
-    public SuitCard(boolean isVisible, int value, Color color, Sign sign) {
-        super(isVisible);
+    public SuitCard(boolean isVisible, CardEffect cardEffect, int value, Color color, Sign sign) {
+        super(isVisible, cardEffect);
         this.value = value;
         this.color = color;
         this.sign = sign;
