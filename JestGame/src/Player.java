@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.Scanner;
 
 public class Player {
 
@@ -16,11 +15,14 @@ public class Player {
         cards.add(c2);
         cards2.add(c3);
         cards2.add(c4);
-        player1.setJest(cards);
-        player2.setJest(cards2);
-        player2.setOffer(c1, c2);
+        player1.setOffer(c1, c2);
+        player2.setOffer(c3, c4);
+        System.out.println("Player before picking:");
         System.out.println(player1);
-        player2.pickCard(c1);
+        System.out.println(player2);
+        player1.pickCard(c3, player2);
+        System.out.println("Player after picking:");
+        System.out.println(player1);
         System.out.println(player2);
     }
 
@@ -31,28 +33,16 @@ public class Player {
     public Player(String name) {
         this.name = name;
         this.offer = new Card[2];
+        this.jest = new ArrayList<>();
     }
 
     @Override
     public String toString() {
         StringBuilder text = new StringBuilder();
         text.append("Name: ").append(name).append("\n");
-        text.append("Cards: \n");
+        text.append("Jest: \n");
         for(Card card : jest) {
-            if(card instanceof SuitCard) {
-                text.append(((SuitCard) card).getValue() + " ");
-                text.append(((SuitCard) card).getColor() + " ");
-                text.append(((SuitCard) card).getSign() + " ");
-                text.append("\n");
-            }
-            else{
-                text.append("Joker");
-                text.append("\n");
-            }
-        }
-        text.append("Offers: \n");
-        if(offer != null && offer.length > 0) {
-            for(Card card : offer) {
+            if (card != null){
                 if(card instanceof SuitCard) {
                     text.append(((SuitCard) card).getValue() + " ");
                     text.append(((SuitCard) card).getColor() + " ");
@@ -62,6 +52,23 @@ public class Player {
                 else{
                     text.append("Joker");
                     text.append("\n");
+                }
+            }
+        }
+        text.append("Offers: \n");
+        if(offer != null && offer.length > 0) {
+            for(Card card : offer) {
+                if(card != null){
+                    if(card instanceof SuitCard) {
+                        text.append(((SuitCard) card).getValue() + " ");
+                        text.append(((SuitCard) card).getColor() + " ");
+                        text.append(((SuitCard) card).getSign() + " ");
+                        text.append("\n");
+                    }
+                    else{
+                        text.append("Joker");
+                        text.append("\n");
+                    }
                 }
             }
         }
@@ -89,13 +96,30 @@ public class Player {
     }
 
     public void setOffer(Card visibleCard, Card hiddenCard) {
-        hiddenCard.setVisible(false);
-        this.offer[0] = visibleCard;
+        if(hiddenCard != null) {
+            hiddenCard.setVisible(false);
+            this.offer[1] = hiddenCard;
+        }
+        if(visibleCard != null) {
+            this.offer[0] = visibleCard;
+        }
+    }
+
+    public void setVisibleCard(Card visibleCard) {
+        this.offer[0] =  visibleCard;
+    }
+
+    public void setHiddenCard(Card hiddenCard) {
         this.offer[1] = hiddenCard;
     }
 
-    public void pickCard(Card card) {
+    public void pickCard(Card card, Player pickedPlayer) {
         this.jest.add(card);
+        if(card == pickedPlayer.getOffer()[0]) {
+            pickedPlayer.setVisibleCard(null);
+        }else{
+            pickedPlayer.setHiddenCard(null);
+        }
     }
 
     public void addLastCardToJest() {
