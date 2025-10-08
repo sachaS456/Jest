@@ -110,7 +110,9 @@ public class Player {
     }
 
     public void setHiddenCard(Card hiddenCard) {
-        hiddenCard.setVisible(false);
+        if(hiddenCard != null) {
+            hiddenCard.setVisible(false);
+        }
         this.offer[1] = hiddenCard;
     }
 
@@ -118,8 +120,10 @@ public class Player {
         this.jest.add(card);
         if(card == pickedPlayer.getOffer()[0]) {
             pickedPlayer.setVisibleCard(null);
+            System.out.println(this.name + " picked " + card + " of "+pickedPlayer.getName());
         }else{
             pickedPlayer.setHiddenCard(null);
+            System.out.println(this.name + " has picked hidden card of "+pickedPlayer.getName());
         }
     }
 

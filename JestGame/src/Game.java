@@ -25,18 +25,11 @@ public class Game {
         System.out.println("Let's give the cards, please don't watch the chosen hidden card of the player !");
         game.distribute();
         System.out.println("Now, let's determine the first player that play ...");
-        Player startingPlayer = game.getPlayersOrder();
-        System.out.println("The player that start is " + startingPlayer.getName());
-        System.out.println(startingPlayer.getName() + ", which card do you want to pick ?");
-        int cardNumber = 1;
-        for(Player player : game.getPlayers()){
-            if(player.getOffer().length == 2){
-                System.out.println(player.getName() + ": "+"("+cardNumber+") " +player.getVisibleCard()+"("+(cardNumber+1)+") "+" hidden card 🫣");
-                cardNumber+=2;
-            }
-            else{
-                System.out.println(player.getName() + " has only 1 card");
-            }
+        Player currentPlayer = game.getPlayersOrder();
+        System.out.println("The player that start is " + currentPlayer.getName());
+        currentPlayer = game.playerTurn(currentPlayer);
+        while(currentPlayer != null){
+            currentPlayer = game.playerTurn(currentPlayer);
         }
     }
 
@@ -198,5 +191,55 @@ public class Game {
             random = (int) ((this.cards.size() * Math.random()));
             this.trophies[1] = this.cards.remove(random);
         }
+    }
+    
+    public Player playerTurn(Player currentPlayer){
+        System.out.println(currentPlayer.getName() + ", which card do you want to pick ?");
+        int cardNumber = 1;
+        ArrayList<Card> possibleCardsToPick = new ArrayList<>();
+        ArrayList<Player> cardOwners = new ArrayList<>();
+
+        for (Player player : this.getPlayers()) {
+            if(player != currentPlayer){
+                if (player.getOffer().length == 2) {
+                    System.out.println(player.getName() + ": " + "(" + cardNumber + ") "
+                            + player.getVisibleCard() + "(" + (cardNumber + 1) + ") hidden card 🫣");
+
+                    possibleCardsToPick.add(player.getVisibleCard());
+                    cardOwners.add(player);
+                    possibleCardsToPick.add(player.getHiddenCard());
+                    cardOwners.add(player);
+
+                    cardNumber += 2;
+                } else {
+                    System.out.println(player.getName() + " has only 1 card");
+                }
+            }
+        }
+
+        System.out.println("-> ");
+        Scanner scanner = new Scanner(System.in);
+        int cardToPick = scanner.nextInt();
+
+        Card pickedCard = possibleCardsToPick.get(cardToPick - 1);
+        Player pickedPlayer = cardOwners.get(cardToPick - 1);
+
+        currentPlayer.pickCard(pickedCard, pickedPlayer);
+
+        if(this.countPlayersWithFullOffer() == this.players.size()){
+            return null;
+        }
+        return pickedPlayer;
+    }
+
+    public int countPlayersWithFullOffer(){
+        int  count = 0;
+        for(Player player : this.getPlayers()){
+            if(player.getVisibleCard() != null && player.getHiddenCard() != null){
+                count++;
+            }
+        }
+
+        return count;
     }
 }
