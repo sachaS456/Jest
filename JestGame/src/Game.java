@@ -198,9 +198,58 @@ public class Game {
         this.players = players;
     }
 
-    public int getJestPoints(Card[] playerJest){
-        // TODO:
-        throw new UnsupportedOperationException("Not supported yet. !");
+    public static int getJestPoints(Player player){
+        int score = 0;
+        int heartNumber = 0;
+
+
+        // count the hearts
+        for(Card card : player.getJest()){
+            if(card instanceof SuitCard && ((SuitCard) card).getSign() == Sign.HEARTH){
+                heartNumber++;
+            }
+        }
+
+        if(player.hasJokerCard()){
+            for (Card card : player.getJest()){
+                if(card instanceof SuitCard){
+                    // Spike or clover
+                    if(((SuitCard) card).getSign() == Sign.SPIKE || ((SuitCard) card).getSign() == Sign.CLOVER){
+                        score += ((SuitCard) card).getValue();
+                    }
+                    // tile
+                    if(((SuitCard) card).getSign() == Sign.TILE){
+                        score -=  ((SuitCard) card).getValue();
+                    }
+                    // heart
+                    if(((SuitCard) card).getSign() == Sign.HEARTH){
+                        if(heartNumber >= 1 && heartNumber <= 3){
+                            score -= ((SuitCard) card).getValue();
+                        }
+                        if(heartNumber == 4){
+                            score +=  ((SuitCard) card).getValue();
+                        }
+                    }
+                }
+            }
+            if(heartNumber == 0){
+                score += 4;
+            }
+        }
+        else{
+            // if the player doesn't have the Joker
+            for(Card card : player.getJest()){
+                // Spike or clover
+                if(((SuitCard) card).getSign() == Sign.SPIKE || ((SuitCard) card).getSign() == Sign.CLOVER){
+                    score += ((SuitCard) card).getValue();
+                }
+                // tile
+                if(((SuitCard) card).getSign() == Sign.TILE){
+                    score -=  ((SuitCard) card).getValue();
+            }
+        }
+
+
     }
 
     public void addTrophy(Player player){
