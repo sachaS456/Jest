@@ -22,7 +22,9 @@ public class Game {
             game.addPlayer(new Player(playerName));
         }
         game.setTrophies();
-        game.playRound();
+        while(!game.getCards().isEmpty()){
+            game.playRound();
+        }
 
     }
 
@@ -216,6 +218,16 @@ public class Game {
                     System.out.println(player.getName() + " has only 1 card, so you can't pick it");
                 }
             }
+        }
+
+        if(possibleCardsToPick.isEmpty()){
+            System.out.println("There is no cards available to pick in your opponents offers. Please chose one of your card :");
+            System.out.println(currentPlayer.getName() + ": " + "(" + cardNumber + ") "
+                    + currentPlayer.getVisibleCard() + "(" + (cardNumber + 1) + ") hidden card 🫣");
+            possibleCardsToPick.add(currentPlayer.getHiddenCard());
+            cardOwners.add(currentPlayer);
+            possibleCardsToPick.add(currentPlayer.getVisibleCard());
+            cardOwners.add(currentPlayer);
         }
 
         System.out.println("-> ");
