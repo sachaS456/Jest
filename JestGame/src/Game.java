@@ -24,7 +24,7 @@ public class Game {
         game.setTrophies();
         while(!game.getCards().isEmpty()){
             game.playRound();
-            System.out.println("Round " + game.roundNumber);
+            System.out.println("End of Round " + game.roundNumber);
             System.out.println("Number of cards " + game.getCards().size());
         }
 
@@ -200,7 +200,7 @@ public class Game {
         int random = (int) ((this.cards.size() * Math.random()));
         this.trophies[0] = this.cards.remove(random);
 
-        if(players.size()>3){
+        if(players.size()<=3){
             random = (int) ((this.cards.size() * Math.random()));
             this.trophies[1] = this.cards.remove(random);
         }
