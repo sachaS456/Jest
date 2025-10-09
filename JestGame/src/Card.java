@@ -14,20 +14,22 @@ public abstract class Card {
         this.cardEffect = cardEffect;
     }
 
-    public Card(boolean isVisible, CardEffect cardEffect, int valueEffect) {
+    public Card(boolean isVisible, CardEffect cardEffect, Sign signEffect) {
         this.isVisible = isVisible;
-        if (cardEffect == CardEffect.HIGHEST || cardEffect == CardEffect.LOWEST) {
+        if (cardEffect == CardEffect.MAJORITY) {
             throw new IllegalArgumentException("Invalid Card Effect, you must give a parameter of type 'Sign'");
         }
         this.cardEffect = cardEffect;
+        this.signEffect = signEffect;
     }
 
-    public Card(boolean isVisible, CardEffect cardEffect, Sign signEffect) {
+    public Card(boolean isVisible, CardEffect cardEffect, int valueEffect) {
         this.isVisible = isVisible;
         if (cardEffect == CardEffect.HIGHEST || cardEffect == CardEffect.LOWEST) {
             throw new IllegalArgumentException("Invalid Card Effect, you must give a parameter of type 'int' value (between 1 and 7)");
         }
         this.cardEffect = cardEffect;
+        this.valueEffect = valueEffect;
     }
 
     public boolean isVisible() {
@@ -37,8 +39,14 @@ public abstract class Card {
         this.isVisible = isVisible;
     }
 
-    public  CardEffect getCardEffect() {
-        return cardEffect;
+    public  String getCardEffectCode() {
+        if (signEffect != null) {
+            return String.format(cardEffect.toString()) + " " + signEffect.toString();
+        } else if (valueEffect != 0) {
+            return String.format(cardEffect.toString()) + " " + valueEffect;
+        }
+
+        return String.format(cardEffect.toString());
     }
 
     public Player checkEffect(ArrayList<Player> players) {

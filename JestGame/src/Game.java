@@ -21,6 +21,7 @@ public class Game {
             game.addPlayer(new Player(playerName));
         }
         game.setTrophies();
+        System.out.println(game.trophiesToString());
 
         while(!game.getCards().isEmpty()){
             game.playRound();
@@ -39,12 +40,32 @@ public class Game {
 
         System.out.println("Let's reveal players Jest with Trophies ! 👀");
         for(Player player : game.getPlayers()){
-            player.addLastCardToJest();
             System.out.println("Points " + Game.getJestPoints(player));
             System.out.println(player);
         }
     }
 
+    public String trophiesToString(){
+        StringBuilder text = new StringBuilder();
+        for(Card card : this.trophies) {
+            if (card != null){
+                if(card instanceof SuitCard) {
+                    text.append(((SuitCard) card).getValue() + " ");
+                    text.append(((SuitCard) card).getColor() + " ");
+                    text.append(((SuitCard) card).getSign() + " ");
+                    text.append(card.getCardEffectCode() + " ");
+                    text.append("\n");
+                }
+                else{
+                    text.append("Joker");
+                    text.append(card.getCardEffectCode() + " ");
+                    text.append("\n");
+                }
+            }
+        }
+
+        return text.toString();
+    }
 
     public Game() {
         this.roundNumber = 0;
