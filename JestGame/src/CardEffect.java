@@ -3,7 +3,7 @@ import java.util.ArrayList;
 public enum CardEffect {
     HIGHEST {
         @Override
-        public Player CheckEffect(int value, Sign sign, Player[] players) {
+        public Player CheckEffect(int value, Sign sign, ArrayList<Player> players) {
             Player winner = null;
             SuitCard higher = null;
             for(Player player : players){
@@ -23,7 +23,7 @@ public enum CardEffect {
     },
     LOWEST {
         @Override
-        public Player CheckEffect(int value, Sign sign, Player[] players) {
+        public Player CheckEffect(int value, Sign sign, ArrayList<Player> players) {
             Player winner = null;
             SuitCard higher = null;
             for(Player player : players){
@@ -43,7 +43,7 @@ public enum CardEffect {
     },
     MAJORITY {
         @Override
-        public Player CheckEffect(int value, Sign sign, Player[] players) {
+        public Player CheckEffect(int value, Sign sign, ArrayList<Player> players) {
             Player winner = null;
             int countMajority = 0;
             for(Player player : players){
@@ -68,7 +68,7 @@ public enum CardEffect {
     },
     JOKER {
         @Override
-        public Player CheckEffect(int value, Sign sign, Player[] players) {
+        public Player CheckEffect(int value, Sign sign, ArrayList<Player> players) {
             for(Player player : players){
                 if (player.hasJokerCard()) {
                     return player;
@@ -80,7 +80,7 @@ public enum CardEffect {
     },
     BEST_JEST {
         @Override
-        public Player CheckEffect(int value, Sign sign, Player[] players) {
+        public Player CheckEffect(int value, Sign sign, ArrayList<Player> players) {
             Player winner = null;
             int besJest = 0;
             for(Player player : players){
@@ -96,7 +96,7 @@ public enum CardEffect {
     },
     BEST_JEST_WITHOUT_JOKER {
         @Override
-        public Player CheckEffect(int value, Sign sign, Player[] players) {
+        public Player CheckEffect(int value, Sign sign, ArrayList<Player> players) {
             Player winner = null;
             int besJest = 0;
             for(Player player : players){
@@ -115,9 +115,9 @@ public enum CardEffect {
     };
 
 
-    public abstract Player CheckEffect(int value, Sign sign, Player[] players);
+    public abstract Player CheckEffect(int value, Sign sign, ArrayList<Player> players);
 
-    /* public Joueur CheckCondition(Player[] players) { a mettre dans game
+    /* public Joueur CheckCondition(ArrayList<Player> players) { a mettre dans game
 
     }*/
 }

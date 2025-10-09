@@ -10,6 +10,20 @@ public class SuitCard extends Card{
         this.sign = sign;
     }
 
+    public SuitCard(boolean isVisible, CardEffect cardEffect, int valueEffect, int value, Color color, Sign sign) {
+        super(isVisible, cardEffect,  valueEffect);
+        this.value = value;
+        this.color = color;
+        this.sign = sign;
+    }
+
+    public SuitCard(boolean isVisible, CardEffect cardEffect, Sign signEffect, int value, Color color, Sign sign) {
+        super(isVisible, cardEffect, signEffect);
+        this.value = value;
+        this.color = color;
+        this.sign = sign;
+    }
+
     @Override
     public String toString() {
         StringBuilder text = new StringBuilder();

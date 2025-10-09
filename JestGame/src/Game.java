@@ -6,7 +6,6 @@ import java.util.Scanner;
 public class Game {
     private int roundNumber;
     private ArrayList<Card> cards;
-    // private Player[] players;
     private Card[] trophies;
     private ArrayList<Player> players;
 
@@ -36,6 +35,14 @@ public class Game {
             System.out.println(player);
         }
 
+        game.giveTrophyCard();
+
+        System.out.println("Let's reveal players Jest with Trophies ! 👀");
+        for(Player player : game.getPlayers()){
+            player.addLastCardToJest();
+            System.out.println("Points " + Game.getJestPoints(player));
+            System.out.println(player);
+        }
     }
 
 
@@ -48,23 +55,23 @@ public class Game {
 
     public static ArrayList<Card> cardsList(){
         ArrayList<Card> cards = new ArrayList<Card>();
-        cards.add(new SuitCard(true, null, 1, Color.BLACK, Sign.CLOVER));
-        cards.add(new SuitCard(true, null, 2, Color.BLACK, Sign.CLOVER));
-        cards.add(new SuitCard(true, null, 3, Color.BLACK, Sign.CLOVER));
-        cards.add(new SuitCard(true, null, 4, Color.BLACK, Sign.CLOVER));
-        cards.add(new SuitCard(true, null, 1, Color.BLACK, Sign.SPIKE));
-        cards.add(new SuitCard(true, null, 2, Color.BLACK, Sign.SPIKE));
-        cards.add(new SuitCard(true, null, 3, Color.BLACK, Sign.SPIKE));
-        cards.add(new SuitCard(true, null, 4, Color.BLACK, Sign.SPIKE));
-        cards.add(new SuitCard(true, null, 1, Color.RED, Sign.HEARTH));
-        cards.add(new SuitCard(true, null, 2, Color.RED, Sign.HEARTH));
-        cards.add(new SuitCard(true, null, 3, Color.RED, Sign.HEARTH));
-        cards.add(new SuitCard(true, null, 4, Color.RED, Sign.HEARTH));
-        cards.add(new SuitCard(true, null, 1, Color.RED, Sign.TILE));
-        cards.add(new SuitCard(true, null, 2, Color.RED, Sign.TILE));
-        cards.add(new SuitCard(true, null, 3, Color.RED, Sign.TILE));
-        cards.add(new SuitCard(true, null, 4, Color.RED, Sign.TILE));
-        cards.add(new JokerCard(true, null));
+        cards.add(new SuitCard(true, CardEffect.HIGHEST, Sign.SPIKE, 1, Color.BLACK, Sign.CLOVER));
+        cards.add(new SuitCard(true, CardEffect.LOWEST, Sign.HEARTH, 2, Color.BLACK, Sign.CLOVER));
+        cards.add(new SuitCard(true, CardEffect.HIGHEST, Sign.HEARTH, 3, Color.BLACK, Sign.CLOVER));
+        cards.add(new SuitCard(true, CardEffect.LOWEST, Sign.SPIKE, 4, Color.BLACK, Sign.CLOVER));
+        cards.add(new SuitCard(true, CardEffect.HIGHEST, Sign.SPIKE, 1, Color.BLACK, Sign.SPIKE));
+        cards.add(new SuitCard(true, CardEffect.MAJORITY, 3, 2, Color.BLACK, Sign.SPIKE));
+        cards.add(new SuitCard(true, CardEffect.MAJORITY, 2, 3, Color.BLACK, Sign.SPIKE));
+        cards.add(new SuitCard(true, CardEffect.LOWEST, Sign.CLOVER, 4, Color.BLACK, Sign.SPIKE));
+        cards.add(new SuitCard(true, CardEffect.JOKER, 1, Color.RED, Sign.HEARTH));
+        cards.add(new SuitCard(true, CardEffect.JOKER, 2, Color.RED, Sign.HEARTH));
+        cards.add(new SuitCard(true, CardEffect.JOKER, 3, Color.RED, Sign.HEARTH));
+        cards.add(new SuitCard(true, CardEffect.JOKER, 4, Color.RED, Sign.HEARTH));
+        cards.add(new SuitCard(true, CardEffect.MAJORITY, 4, 1, Color.RED, Sign.TILE));
+        cards.add(new SuitCard(true, CardEffect.HIGHEST, Sign.TILE, 2, Color.RED, Sign.TILE));
+        cards.add(new SuitCard(true, CardEffect.LOWEST, Sign.TILE, 3, Color.RED, Sign.TILE));
+        cards.add(new SuitCard(true, CardEffect.BEST_JEST_WITHOUT_JOKER, 4, Color.RED, Sign.TILE));
+        cards.add(new JokerCard(true, CardEffect.BEST_JEST));
         return cards;
     }
 
@@ -74,7 +81,10 @@ public class Game {
 
     public void giveTrophyCard()
     {
-        // TODO:
+        for (Card card : trophies) {
+            Player winner = card.checkEffect(this.players);
+            winner.AddCardToJest(card);
+        }
     }
 
     public void distribute()

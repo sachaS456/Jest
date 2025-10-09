@@ -167,4 +167,8 @@ public class Player {
 
         return false;
     }
+
+    public void AddCardToJest(Card card) {
+        this.jest.add(card);
+    }
 }
