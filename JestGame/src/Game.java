@@ -10,39 +10,8 @@ public class Game {
     private ArrayList<Player> players;
 
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        Game game = new Game();
-        System.out.println("Welcome to Jest Game!");
-        System.out.println("How many players want to play (3 or 4) ?");
-        int playerNumber = scanner.nextInt();
-        for(int i = 0; i < playerNumber; i++){
-            System.out.println("Player " + (i + 1) + ", what's your name?:");
-            String playerName = scanner.next();
-            game.addPlayer(new Player(playerName));
-        }
-        game.setTrophies();
-        System.out.println(game.trophiesToString());
-
-        while(!game.getCards().isEmpty()){
-            game.playRound();
-            System.out.println("End of Round " + game.roundNumber);
-            System.out.println("Number of cards " + game.getCards().size());
-        }
-
-        System.out.println("Let's reveal players Jest ! 👀");
-        for(Player player : game.getPlayers()){
-            player.addLastCardToJest();
-            System.out.println("Points " + Game.getJestPoints(player));
-            System.out.println(player);
-        }
-
-        game.giveTrophyCard();
-
-        System.out.println("Let's reveal players Jest with Trophies ! 👀");
-        for(Player player : game.getPlayers()){
-            System.out.println("Points " + Game.getJestPoints(player));
-            System.out.println(player);
-        }
+       Game game = new Game();
+       game.playGame();
     }
 
     public String trophiesToString(){
@@ -176,7 +145,43 @@ public class Game {
     }
 
     public void playGame(){
-        // TODO:
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Welcome to Jest Game!");
+        System.out.println("How many players want to play (3 or 4) ?");
+        int playerNumber = scanner.nextInt();
+        for(int i = 0; i < playerNumber; i++){
+            System.out.println("Player " + (i + 1) + ", what's your name?:");
+            String playerName = scanner.next();
+            this.addPlayer(new Player(playerName));
+        }
+        this.setTrophies();
+        System.out.println(this.trophiesToString());
+
+        while(!this.getCards().isEmpty()){
+            this.playRound();
+            System.out.println("End of Round " + this.roundNumber);
+            System.out.println("Number of cards " + this.getCards().size());
+        }
+
+        System.out.println("Let's reveal players Jest ! 👀");
+        for(Player player : this.getPlayers()){
+            player.addLastCardToJest();
+            System.out.println("Points " + Game.getJestPoints(player));
+            System.out.println(player);
+        }
+
+        this.giveTrophyCard();
+
+        System.out.println("Let's reveal players Jest with Trophies ! 👀");
+        Player winner = null;
+        for(Player player : this.getPlayers()){
+            System.out.println("Points " + Game.getJestPoints(player));
+            if(winner == null || Game.getJestPoints(player) > Game.getJestPoints(winner)){
+                winner = player;
+            }
+            System.out.println(player);
+        }
+        System.out.println("The winner is " + winner.getName());
     }
 
     public Player getPlayersOrder() {
