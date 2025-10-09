@@ -29,6 +29,7 @@ public class Game {
             System.out.println("Number of cards " + game.getCards().size());
         }
 
+        System.out.println("Let's reveal players Jest ! 👀");
         for(Player player : game.getPlayers()){
             player.addLastCardToJest();
             System.out.println(player);
