@@ -22,6 +22,7 @@ public class Game {
             game.addPlayer(new Player(playerName));
         }
         game.setTrophies();
+
         while(!game.getCards().isEmpty()){
             game.playRound();
             System.out.println("End of Round " + game.roundNumber);
@@ -71,11 +72,11 @@ public class Game {
 
     public void distribute()
     {
+        ArrayList<Card> distributionPool = new ArrayList<>();
         // merge players cards of offer left with a number of cards of the Game equals to the number of players in round >1
         if(this.roundNumber > 1){
             ArrayList<Card> gameCards = new ArrayList<>();
             ArrayList<Card> playerCards = new ArrayList<>();
-            ArrayList<Card> newGameCards = new ArrayList<>();
             for(int i = 0; i < this.players.size(); i++){
                 int random = (int) ((this.cards.size() * Math.random()));
                 gameCards.add(this.cards.remove(random));
@@ -84,18 +85,22 @@ public class Game {
                 playerCards.add(player.removeLastCardFromOffer());
             }
 
-            newGameCards.addAll(gameCards);
-            newGameCards.addAll(playerCards);
 
-            this.setCards(newGameCards);
+
+            distributionPool.addAll(gameCards);
+            distributionPool.addAll(playerCards);
+
+            this.cards.removeAll(gameCards);
+        }else{
+            distributionPool = this.cards;
         }
 
         Scanner scanner = new Scanner(System.in);
         for(Player player : this.players){
-            int random = (int) ((this.cards.size() * Math.random()));
-            Card card1 = this.cards.remove(random);
-            random = (int) ((this.cards.size() * Math.random()));
-            Card card2 = this.cards.remove(random);
+            int random = (int) ((distributionPool.size() * Math.random()));
+            Card card1 = distributionPool.remove(random);
+            random = (int) ((distributionPool.size() * Math.random()));
+            Card card2 = distributionPool.remove(random);
             System.out.println(player.getName() + ", which card do you want to hide ? (1, 2)");
             System.out.println("(1) Card 1: " + card1);
             System.out.println("(2) Card 2: " + card2);
