@@ -236,19 +236,21 @@ public class Game {
                 score += 4;
             }
         }
-        else{
+        else {
             // if the player doesn't have the Joker
-            for(Card card : player.getJest()){
+            for (Card card : player.getJest()) {
                 // Spike or clover
-                if(((SuitCard) card).getSign() == Sign.SPIKE || ((SuitCard) card).getSign() == Sign.CLOVER){
+                if (((SuitCard) card).getSign() == Sign.SPIKE || ((SuitCard) card).getSign() == Sign.CLOVER) {
                     score += ((SuitCard) card).getValue();
                 }
                 // tile
-                if(((SuitCard) card).getSign() == Sign.TILE){
-                    score -=  ((SuitCard) card).getValue();
+                if (((SuitCard) card).getSign() == Sign.TILE) {
+                    score -= ((SuitCard) card).getValue();
+                }
             }
         }
 
+        return score;
 
     }
 
