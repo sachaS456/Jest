@@ -22,6 +22,8 @@ public class Game {
             game.addPlayer(new Player(playerName));
         }
         game.setTrophies();
+
+        game.setRoundNumber(game.getRoundNumber() + 1);
         System.out.println("Let's give the cards, please don't watch the chosen hidden card of the player !");
         game.distribute();
         System.out.println("Now, let's determine the first player that play ...");
@@ -126,8 +128,8 @@ public class Game {
     public Player getPlayersOrder() {
         Player highScorePlayer = null;
         for(Player player : this.players){
-            // the starting player can't have the Joker because it is the only card valued at 0
-            if(!(player.getVisibleCard() instanceof JokerCard)){
+            // the starting player can't have the Joker because it is the only card valued at 0 and must have not play
+            if(!(player.getVisibleCard() instanceof JokerCard) && !(this.getPlayersThatHavePlayedThisRound().contains(player))){
                 if(highScorePlayer == null){
                     highScorePlayer = player;
                 }
@@ -201,10 +203,9 @@ public class Game {
 
         for (Player player : this.getPlayers()) {
             if(player != currentPlayer){
-                if (player.getOffer().length == 2) {
+                if (player.getVisibleCard() != null && player.getHiddenCard() != null) {
                     System.out.println(player.getName() + ": " + "(" + cardNumber + ") "
                             + player.getVisibleCard() + "(" + (cardNumber + 1) + ") hidden card 🫣");
-
                     possibleCardsToPick.add(player.getVisibleCard());
                     cardOwners.add(player);
                     possibleCardsToPick.add(player.getHiddenCard());
@@ -212,7 +213,7 @@ public class Game {
 
                     cardNumber += 2;
                 } else {
-                    System.out.println(player.getName() + " has only 1 card");
+                    System.out.println(player.getName() + " has only 1 card, so you can't pick it");
                 }
             }
         }
@@ -222,14 +223,30 @@ public class Game {
         int cardToPick = scanner.nextInt();
 
         Card pickedCard = possibleCardsToPick.get(cardToPick - 1);
-        Player pickedPlayer = cardOwners.get(cardToPick - 1);
+        Player nextPlayer = cardOwners.get(cardToPick - 1);
 
-        currentPlayer.pickCard(pickedCard, pickedPlayer);
+        currentPlayer.pickCard(pickedCard, nextPlayer);
 
-        if(this.countPlayersWithFullOffer() == this.players.size()){
+        if(this.countPlayersWithFullOffer() == 0){
             return null;
         }
-        return pickedPlayer;
+
+        // next player is the player with current highest card if next player has already play
+        if(this.getPlayersThatHavePlayedThisRound().contains(nextPlayer)){
+            nextPlayer = getPlayersOrder();
+        }
+        return nextPlayer;
+    }
+
+    public ArrayList<Player> getPlayersThatHavePlayedThisRound()
+    {
+        ArrayList<Player> playersThatHavePlayed = new ArrayList<>();
+        for(Player player : this.getPlayers()){
+            if(player.getJest().size() == this.getRoundNumber()){
+                playersThatHavePlayed.add(player);
+            }
+        }
+        return playersThatHavePlayed;
     }
 
     public int countPlayersWithFullOffer(){
@@ -239,7 +256,6 @@ public class Game {
                 count++;
             }
         }
-
         return count;
     }
 }
