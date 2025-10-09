@@ -4,6 +4,8 @@ public enum CardEffect {
     HIGHEST {
         @Override
         public Player CheckEffect(int value, Sign sign, ArrayList<Player> players) {
+            if (sign == null)
+                throw new NullPointerException("Sign can't be null");
             Player winner = null;
             SuitCard higher = null;
             for(Player player : players){
@@ -24,6 +26,8 @@ public enum CardEffect {
     LOWEST {
         @Override
         public Player CheckEffect(int value, Sign sign, ArrayList<Player> players) {
+            if (sign == null)
+                throw new NullPointerException("Sign can't be null");
             Player winner = null;
             SuitCard higher = null;
             for(Player player : players){
@@ -44,6 +48,8 @@ public enum CardEffect {
     MAJORITY {
         @Override
         public Player CheckEffect(int value, Sign sign, ArrayList<Player> players) {
+            if (value <= 0 || value > 4)
+                throw new IllegalArgumentException("Value must be between 0 and 4");
             Player winner = null;
             int countMajority = 0;
             for(Player player : players){
