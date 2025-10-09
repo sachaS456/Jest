@@ -157,4 +157,14 @@ public class Player {
 
         return removedCard;
     }
+
+    public boolean hasJokerCard() {
+        for (Card card : jest) {
+            if(card instanceof JokerCard) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
