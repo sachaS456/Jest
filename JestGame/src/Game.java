@@ -32,6 +32,7 @@ public class Game {
         System.out.println("Let's reveal players Jest ! 👀");
         for(Player player : game.getPlayers()){
             player.addLastCardToJest();
+            System.out.println("Points " + Game.getJestPoints(player));
             System.out.println(player);
         }
 
@@ -201,12 +202,30 @@ public class Game {
     public static int getJestPoints(Player player){
         int score = 0;
         int heartNumber = 0;
+        int spikeNumber = 0;
+        int cloverNumber = 0;
+        int tileNumber = 0;
+        ArrayList<Integer> spikeValues = new ArrayList<>();
+        ArrayList<Integer> cloverValues = new ArrayList<>();
 
 
         // count the hearts
         for(Card card : player.getJest()){
-            if(card instanceof SuitCard && ((SuitCard) card).getSign() == Sign.HEARTH){
-                heartNumber++;
+            if(card instanceof SuitCard){
+                if(((SuitCard) card).getSign() == Sign.HEARTH){
+                    heartNumber++;
+                }
+                if(((SuitCard) card).getSign() == Sign.TILE){
+                    tileNumber++;
+                }
+                if(((SuitCard) card).getSign() == Sign.CLOVER){
+                    cloverNumber++;
+                    cloverValues.add(((SuitCard) card).getValue());
+                }
+                if(((SuitCard) card).getSign() == Sign.SPIKE){
+                    spikeNumber++;
+                    spikeValues.add(((SuitCard) card).getValue());
+                }
             }
         }
 
@@ -230,6 +249,20 @@ public class Game {
                             score +=  ((SuitCard) card).getValue();
                         }
                     }
+
+                    // if card is an Ace with unique Sign in Jest
+                    if(((SuitCard) card).getSign() == Sign.HEARTH && heartNumber == 1){
+                        score += 4;
+                    }
+                    if(((SuitCard) card).getSign() == Sign.SPIKE && spikeNumber == 1){
+                        score += 4;
+                    }
+                    if(((SuitCard) card).getSign() == Sign.CLOVER && cloverNumber == 1){
+                        score += 4;
+                    }
+                    if(((SuitCard) card).getSign() == Sign.TILE && tileNumber == 1){
+                        score += 4;
+                    }
                 }
             }
             if(heartNumber == 0){
@@ -247,6 +280,27 @@ public class Game {
                 if (((SuitCard) card).getSign() == Sign.TILE) {
                     score -= ((SuitCard) card).getValue();
                 }
+
+                // if card is an Ace with unique Sign in Jest
+                if(((SuitCard) card).getSign() == Sign.HEARTH && heartNumber == 1){
+                    score += 4;
+                }
+                if(((SuitCard) card).getSign() == Sign.SPIKE && spikeNumber == 1){
+                    score += 4;
+                }
+                if(((SuitCard) card).getSign() == Sign.CLOVER && cloverNumber == 1){
+                    score += 4;
+                }
+                if(((SuitCard) card).getSign() == Sign.TILE && tileNumber == 1){
+                    score += 4;
+                }
+            }
+        }
+
+        // spike and clover with the same face value worth a bonus of 2 points
+        for(int value : spikeValues){
+            if(cloverValues.contains(value)){
+                score += 2;
             }
         }
 
