@@ -22,17 +22,8 @@ public class Game {
             game.addPlayer(new Player(playerName));
         }
         game.setTrophies();
+        game.playRound();
 
-        game.setRoundNumber(game.getRoundNumber() + 1);
-        System.out.println("Let's give the cards, please don't watch the chosen hidden card of the player !");
-        game.distribute();
-        System.out.println("Now, let's determine the first player that play ...");
-        Player currentPlayer = game.getPlayersOrder();
-        System.out.println("The player that start is " + currentPlayer.getName());
-        currentPlayer = game.playerTurn(currentPlayer);
-        while(currentPlayer != null){
-            currentPlayer = game.playerTurn(currentPlayer);
-        }
     }
 
 
@@ -110,7 +101,16 @@ public class Game {
 
     public void playRound()
     {
-        // TODO:
+        this.setRoundNumber(this.getRoundNumber() + 1);
+        System.out.println("Let's give the cards, please don't watch the chosen hidden card of the player !");
+        this.distribute();
+        System.out.println("Now, let's determine the first player that play ...");
+        Player currentPlayer = this.getPlayersOrder();
+        System.out.println("The player that start is " + currentPlayer.getName());
+        currentPlayer = this.playerTurn(currentPlayer);
+        while(currentPlayer != null){
+            currentPlayer = this.playerTurn(currentPlayer);
+        }
     }
 
     public int getRoundNumber() {
