@@ -14,7 +14,7 @@ public class Game {
         Scanner scanner = new Scanner(System.in);
         Game game = new Game();
         System.out.println("Welcome to Jest Game!");
-        System.out.println("How many players want to play ?");
+        System.out.println("How many players want to play (3 or 4) ?");
         int playerNumber = scanner.nextInt();
         for(int i = 0; i < playerNumber; i++){
             System.out.println("Player " + (i + 1) + ", what's your name?:");
@@ -27,6 +27,11 @@ public class Game {
             game.playRound();
             System.out.println("End of Round " + game.roundNumber);
             System.out.println("Number of cards " + game.getCards().size());
+        }
+
+        for(Player player : game.getPlayers()){
+            player.addLastCardToJest();
+            System.out.println(player);
         }
 
     }
