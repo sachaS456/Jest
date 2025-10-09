@@ -24,6 +24,8 @@ public class Game {
         game.setTrophies();
         while(!game.getCards().isEmpty()){
             game.playRound();
+            System.out.println("Round " + game.roundNumber);
+            System.out.println("Number of cards " + game.getCards().size());
         }
 
     }
@@ -81,6 +83,25 @@ public class Game {
 
     public void distribute()
     {
+        // merge players cards of offer left with a number of cards of the Game equals to the number of players in round >1
+        if(this.roundNumber > 1){
+            ArrayList<Card> gameCards = new ArrayList<>();
+            ArrayList<Card> playerCards = new ArrayList<>();
+            ArrayList<Card> newGameCards = new ArrayList<>();
+            for(int i = 0; i < this.players.size(); i++){
+                int random = (int) ((this.cards.size() * Math.random()));
+                gameCards.add(this.cards.remove(random));
+            }
+            for(Player player : this.players){
+                playerCards.add(player.removeLastCardFromOffer());
+            }
+
+            newGameCards.addAll(gameCards);
+            newGameCards.addAll(playerCards);
+
+            this.setCards(newGameCards);
+        }
+
         Scanner scanner = new Scanner(System.in);
         for(Player player : this.players){
             int random = (int) ((this.cards.size() * Math.random()));

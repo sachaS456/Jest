@@ -143,4 +143,18 @@ public class Player {
     public Card getHiddenCard() {
         return this.offer[1];
     }
+
+    public Card removeLastCardFromOffer() {
+        Card removedCard = null;
+        if(this.offer[0] != null) {
+            removedCard = this.offer[0];
+            this.offer[0] = null;
+        }
+        if(this.offer[1] != null) {
+            removedCard = this.offer[1];
+            this.offer[1] = null;
+        }
+
+        return removedCard;
+    }
 }
