@@ -344,11 +344,11 @@ public class Game {
     }
 
     public void setTrophies(){
-        int random = (int) ((this.cards.size() * Math.random()));
+        int random = (int) (((this.cards.size()-1) * Math.random()));
         this.trophies[0] = this.cards.remove(random);
 
         if(players.size()<=3){
-            random = (int) ((this.cards.size() * Math.random()));
+            random = (int) (((this.cards.size()-1) * Math.random()));
             this.trophies[1] = this.cards.remove(random);
         }
     }
