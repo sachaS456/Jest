@@ -141,7 +141,7 @@ public class Game {
         for(int i = 0; i < playerNumber; i++){
             System.out.println("Player " + (i + 1) + ", what's your name?:");
             String playerName = scanner.next();
-            this.addPlayer(new Player(playerName));
+            this.addPlayer(new AI(playerName));
         }
         this.setTrophies();
         System.out.println(this.trophiesToString());

@@ -1,31 +1,7 @@
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class Player {
-
-    public static void main(String args[]) {
-        Card c1 = new SuitCard(true, null, 10, Color.RED, Sign.CLOVER);
-        Card c2 = new SuitCard(true, null, 11, Color.RED, Sign.CLOVER);
-        Card c3 = new SuitCard(true, null, 12, Color.RED, Sign.CLOVER);
-        Card c4 = new SuitCard(true, null, 13, Color.RED, Sign.CLOVER);
-        Player player1 = new Player("Player 1");
-        Player player2 = new Player("Player 2");
-        ArrayList<Card> cards = new ArrayList<>();
-        ArrayList<Card> cards2 = new ArrayList<>();
-        cards.add(c1);
-        cards.add(c2);
-        cards2.add(c3);
-        cards2.add(c4);
-        player1.setOffer(c1, c2);
-        player2.setOffer(c3, c4);
-        System.out.println("Player before picking:");
-        System.out.println(player1);
-        System.out.println(player2);
-        player1.pickCard(c3, player2);
-        System.out.println("Player after picking:");
-        System.out.println(player1);
-        System.out.println(player2);
-    }
+public abstract class Player {
 
     private String name;
     private ArrayList<Card> jest;
