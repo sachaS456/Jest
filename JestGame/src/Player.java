@@ -158,6 +158,7 @@ public abstract class Player {
         final String GREEN  = "\u001B[32m";
 
         System.out.println(RED + this.getName() + RESET + ", " + YELLOW + "which card do you want to pick ?" + RESET);
+        sleep(500);
 
         int cardNumber = 1;
         ArrayList<Card> possibleCardsToPick = new ArrayList<>();
@@ -171,6 +172,7 @@ public abstract class Player {
                                     BLUE + "(" + cardNumber + ") " + RESET + player.getVisibleCard() + " " +
                                     BLUE + "(" + (cardNumber + 1) + ") " + RESET + "hidden card 🫣"
                     );
+                    sleep(300);
 
                     possibleCardsToPick.add(player.getVisibleCard());
                     cardOwners.add(player);
@@ -183,6 +185,7 @@ public abstract class Player {
                             RED + player.getName() + RESET +
                                     YELLOW + " has only 1 card, so you can't pick it" + RESET
                     );
+                    sleep(300);
                 }
             }
         }
@@ -191,11 +194,13 @@ public abstract class Player {
             System.out.println(
                     YELLOW + "There are no cards available to pick from your opponents. Please choose one of your own cards:" + RESET
             );
+            sleep(500);
             System.out.println(
                     RED + this.getName() + RESET + ": \n" +
                             BLUE + "(" + cardNumber + ") " + RESET + this.getVisibleCard() + " " +
                             BLUE + "(" + (cardNumber + 1) + ") " + RESET + "hidden card 🫣"
             );
+            sleep(300);
 
             possibleCardsToPick.add(this.getHiddenCard());
             cardOwners.add(this);
@@ -210,6 +215,7 @@ public abstract class Player {
         Player nextPlayer = cardOwners.get(cardToPick - 1);
 
         this.pickCard(pickedCard, nextPlayer);
+        sleep(500);
 
         if (game.countPlayersWithFullOffer() == 0) {
             return null;
@@ -220,8 +226,18 @@ public abstract class Player {
         }
 
         System.out.println(GREEN + "You picked a card from " + nextPlayer.getName() + "!" + RESET);
+        sleep(500);
         return nextPlayer;
     }
+
+    private void sleep(int millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
 
 
     public abstract int makeChoice(int min, int max);
@@ -238,12 +254,16 @@ public abstract class Player {
                         YELLOW + "which card do you want to hide? " +
                         BLUE + "(1, 2)" + RESET
         );
+        sleep(500);
 
         System.out.println(BLUE + "(1) " + RESET + card1);
+        sleep(300);
         System.out.println(BLUE + "(2) " + RESET + card2);
+        sleep(300);
 
         System.out.print(BLUE + "-> " + RESET);
-        int cardToHide = this.makeChoice(1, 2);
+        int cardToHide = this.makeChoice(1, 3);
+        sleep(300);
 
         if (cardToHide == 1) {
             this.setHiddenCard(card1);
@@ -254,6 +274,7 @@ public abstract class Player {
         }
 
         System.out.println(GREEN + "You chose to hide card " + cardToHide + "." + RESET);
+        sleep(500);
     }
 
 }

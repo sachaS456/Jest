@@ -163,6 +163,7 @@ public class Game {
         System.out.println(GREEN + "\n======================================" + RESET);
         System.out.println(YELLOW + "🎴  Welcome to the Jest Card Game! 🎴" + RESET);
         System.out.println(GREEN + "======================================\n" + RESET);
+        sleep(1000);
 
         System.out.println(YELLOW + "How many players want to play? (3 or 4)" + RESET);
         System.out.print(BLUE + "-> " + RESET);
@@ -180,30 +181,39 @@ public class Game {
                 this.addPlayer(new Human(playerName));
                 System.out.println(GREEN + "👤 Added human player: " + RED + playerName + RESET);
             }
+            sleep(500);
         }
 
         this.setTrophies();
+        sleep(500);
+
         System.out.println();
         System.out.println(BLUE + "----------------------------------" + RESET);
         System.out.println(YELLOW + "🏆  Trophies have been updated!  🏆" + RESET);
         System.out.println(GREEN + this.trophiesToString() + RESET);
         System.out.println(BLUE + "----------------------------------" + RESET);
         System.out.println();
+        sleep(1000);
 
         while (!this.getCards().isEmpty()) {
             this.playRound();
             System.out.println(GREEN + "\nEnd of Round " + this.roundNumber + RESET);
             System.out.println(BLUE + "Remaining cards: " + this.getCards().size() + RESET + "\n");
+            sleep(1000);
         }
 
         System.out.println(YELLOW + "Let's reveal players' Jests! 👀" + RESET);
+        sleep(1000);
+
         for (Player player : this.getPlayers()) {
             player.addLastCardToJest();
             System.out.println(GREEN + "Points: " + RESET + Game.getJestPoints(player));
             System.out.println(RED + player + RESET);
+            sleep(500);
         }
 
         this.giveTrophyCard();
+        sleep(1000);
 
         System.out.println(YELLOW + "\nLet's reveal players' Jests with Trophies! 👀" + RESET);
         Player winner = null;
@@ -213,6 +223,7 @@ public class Game {
                 winner = player;
             }
             System.out.println(RED + player + RESET);
+            sleep(500);
         }
 
         System.out.println();
@@ -221,6 +232,15 @@ public class Game {
         System.out.println(BLUE + "======================================" + RESET);
         System.out.println(GREEN + "Thanks for playing Jest! 👏" + RESET);
     }
+
+    private void sleep(int millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
 
 
     public int makeChoice(int min, int max) {
