@@ -130,9 +130,9 @@ public class Game {
         System.out.println("Now, let's determine the first player that play ...");
         Player currentPlayer = this.getPlayersOrder();
         System.out.println("The player that start is " + currentPlayer.getName());
-        currentPlayer = this.playerTurn(currentPlayer);
+        currentPlayer = currentPlayer.playTurn(this);
         while(currentPlayer != null){
-            currentPlayer = this.playerTurn(currentPlayer);
+            currentPlayer = currentPlayer.playTurn(this);
         }
     }
 
@@ -356,59 +356,6 @@ public class Game {
             random = (int) (((this.cards.size()-1) * Math.random()));
             this.trophies[1] = this.cards.remove(random);
         }
-    }
-    
-    public Player playerTurn(Player currentPlayer){
-        System.out.println(currentPlayer.getName() + ", which card do you want to pick ?");
-        int cardNumber = 1;
-        ArrayList<Card> possibleCardsToPick = new ArrayList<>();
-        ArrayList<Player> cardOwners = new ArrayList<>();
-
-        for (Player player : this.getPlayers()) {
-            if(player != currentPlayer){
-                if (player.getVisibleCard() != null && player.getHiddenCard() != null) {
-                    System.out.println(player.getName() + ": " + "(" + cardNumber + ") "
-                            + player.getVisibleCard() + "(" + (cardNumber + 1) + ") hidden card 🫣");
-                    possibleCardsToPick.add(player.getVisibleCard());
-                    cardOwners.add(player);
-                    possibleCardsToPick.add(player.getHiddenCard());
-                    cardOwners.add(player);
-
-                    cardNumber += 2;
-                } else {
-                    System.out.println(player.getName() + " has only 1 card, so you can't pick it");
-                }
-            }
-        }
-
-        if(possibleCardsToPick.isEmpty()){
-            System.out.println("There is no cards available to pick in your opponents offers. Please chose one of your card :");
-            System.out.println(currentPlayer.getName() + ": " + "(" + cardNumber + ") "
-                    + currentPlayer.getVisibleCard() + "(" + (cardNumber + 1) + ") hidden card 🫣");
-            possibleCardsToPick.add(currentPlayer.getHiddenCard());
-            cardOwners.add(currentPlayer);
-            possibleCardsToPick.add(currentPlayer.getVisibleCard());
-            cardOwners.add(currentPlayer);
-        }
-
-        System.out.println("-> ");
-        Scanner scanner = new Scanner(System.in);
-        int cardToPick = scanner.nextInt();
-
-        Card pickedCard = possibleCardsToPick.get(cardToPick - 1);
-        Player nextPlayer = cardOwners.get(cardToPick - 1);
-
-        currentPlayer.pickCard(pickedCard, nextPlayer);
-
-        if(this.countPlayersWithFullOffer() == 0){
-            return null;
-        }
-
-        // next player is the player with current highest card if next player has already play
-        if(this.getPlayersThatHavePlayedThisRound().contains(nextPlayer)){
-            nextPlayer = getPlayersOrder();
-        }
-        return nextPlayer;
     }
 
     public ArrayList<Player> getPlayersThatHavePlayedThisRound()
