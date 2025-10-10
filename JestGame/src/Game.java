@@ -72,8 +72,10 @@ public class Game {
     public void giveTrophyCard()
     {
         for (Card card : trophies) {
-            Player winner = card.checkEffect(this.players);
-            winner.AddCardToJest(card);
+            if(card != null){
+                Player winner = card.checkEffect(this.players);
+                winner.AddCardToJest(card);
+            }
         }
     }
 
@@ -137,7 +139,7 @@ public class Game {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Welcome to Jest Game!");
         System.out.println("How many players want to play (3 or 4) ?");
-        int playerNumber = scanner.nextInt();
+        int playerNumber = this.makeChoice(3, 4);
         for(int i = 0; i < playerNumber; i++){
             System.out.println("Player " + (i + 1) + ", what's your name?:");
             String playerName = scanner.next();
@@ -175,6 +177,26 @@ public class Game {
             System.out.println(player);
         }
         System.out.println("The winner is " + winner.getName());
+    }
+
+    public int makeChoice(int min, int max) {
+        Scanner scanner = new Scanner(System.in);
+        int choice;
+
+        do {
+
+            while (!scanner.hasNextInt()) {
+                scanner.next();
+            }
+
+            choice = scanner.nextInt();
+
+            if (choice < min || choice > max) {
+                System.out.println("Please make a choice between " + min + " and " + max + ".");
+            }
+        } while (choice < min || choice > max);
+
+        return choice;
     }
 
     public Player getPlayersOrder() {
