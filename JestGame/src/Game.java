@@ -113,19 +113,35 @@ public class Game {
         }
     }
 
-    public void playRound()
-    {
+    public void playRound() {
+        final String RESET  = "\u001B[0m";
+        final String RED    = "\u001B[31m";
+        final String YELLOW = "\u001B[33m";
+        final String BLUE   = "\u001B[34m";
+        final String GREEN  = "\u001B[32m";
+
         this.setRoundNumber(this.getRoundNumber() + 1);
-        System.out.println("Let's give the cards, please don't watch the chosen hidden card of the player !");
+
+        System.out.println(GREEN + "===== ROUND " + this.getRoundNumber() + " =====" + RESET);
+        System.out.println(YELLOW + "Let's give the cards! Please don't watch the chosen hidden card of the player!" + RESET + "\n");
+
         this.distribute();
-        System.out.println("Now, let's determine the first player that play ...");
+
+        System.out.println(YELLOW + "Now, let's determine the first player to play ..." + RESET + "\n");
+
         Player currentPlayer = this.getPlayersOrder();
-        System.out.println("The player that start is " + currentPlayer.getName());
+
+        System.out.println(GREEN + "The player that starts is " + RED + currentPlayer.getName() + RESET + " 🎮");
+
         currentPlayer = currentPlayer.playTurn(this);
-        while(currentPlayer != null){
+        while (currentPlayer != null) {
+            System.out.println(BLUE + "\nNext turn!" + RESET);
             currentPlayer = currentPlayer.playTurn(this);
         }
+
+        System.out.println(GREEN + "\nThe round has ended!" + RESET);
     }
+
 
     public int getRoundNumber() {
         return roundNumber;
@@ -135,49 +151,77 @@ public class Game {
         this.roundNumber = roundNumber;
     }
 
-    public void playGame(){
+    public void playGame() {
+        final String RESET  = "\u001B[0m";
+        final String RED    = "\u001B[31m";
+        final String YELLOW = "\u001B[33m";
+        final String GREEN  = "\u001B[32m";
+        final String BLUE   = "\u001B[34m";
+
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Welcome to Jest Game!");
-        System.out.println("How many players want to play (3 or 4) ?");
+
+        System.out.println(GREEN + "\n======================================" + RESET);
+        System.out.println(YELLOW + "🎴  Welcome to the Jest Card Game! 🎴" + RESET);
+        System.out.println(GREEN + "======================================\n" + RESET);
+
+        System.out.println(YELLOW + "How many players want to play? (3 or 4)" + RESET);
+        System.out.print(BLUE + "-> " + RESET);
         int playerNumber = this.makeChoice(3, 4);
-        for(int i = 0; i < playerNumber; i++){
-            System.out.println("Player " + (i + 1) + ", what's your name?:");
+
+        for (int i = 0; i < playerNumber; i++) {
+            System.out.println(BLUE + "Player " + (i + 1) + ", what's your name?:" + RESET);
+            System.out.print(BLUE + "-> " + RESET);
             String playerName = scanner.next();
-            if(playerName.toLowerCase().contains("bot")){
+
+            if (playerName.toLowerCase().contains("bot")) {
                 this.addPlayer(new AI(playerName));
-            }else{
+                System.out.println(GREEN + "🤖 Added bot player: " + RED + playerName + RESET);
+            } else {
                 this.addPlayer(new Human(playerName));
+                System.out.println(GREEN + "👤 Added human player: " + RED + playerName + RESET);
             }
         }
-        this.setTrophies();
-        System.out.println(this.trophiesToString());
 
-        while(!this.getCards().isEmpty()){
+        this.setTrophies();
+        System.out.println();
+        System.out.println(BLUE + "----------------------------------" + RESET);
+        System.out.println(YELLOW + "🏆  Trophies have been updated!  🏆" + RESET);
+        System.out.println(GREEN + this.trophiesToString() + RESET);
+        System.out.println(BLUE + "----------------------------------" + RESET);
+        System.out.println();
+
+        while (!this.getCards().isEmpty()) {
             this.playRound();
-            System.out.println("End of Round " + this.roundNumber);
-            System.out.println("Number of cards " + this.getCards().size());
+            System.out.println(GREEN + "\nEnd of Round " + this.roundNumber + RESET);
+            System.out.println(BLUE + "Remaining cards: " + this.getCards().size() + RESET + "\n");
         }
 
-        System.out.println("Let's reveal players Jest ! 👀");
-        for(Player player : this.getPlayers()){
+        System.out.println(YELLOW + "Let's reveal players' Jests! 👀" + RESET);
+        for (Player player : this.getPlayers()) {
             player.addLastCardToJest();
-            System.out.println("Points " + Game.getJestPoints(player));
-            System.out.println(player);
+            System.out.println(GREEN + "Points: " + RESET + Game.getJestPoints(player));
+            System.out.println(RED + player + RESET);
         }
 
         this.giveTrophyCard();
 
-        System.out.println("Let's reveal players Jest with Trophies ! 👀");
+        System.out.println(YELLOW + "\nLet's reveal players' Jests with Trophies! 👀" + RESET);
         Player winner = null;
-        for(Player player : this.getPlayers()){
-            System.out.println("Points " + Game.getJestPoints(player));
-            if(winner == null || Game.getJestPoints(player) > Game.getJestPoints(winner)){
+        for (Player player : this.getPlayers()) {
+            System.out.println(GREEN + "Points: " + RESET + Game.getJestPoints(player));
+            if (winner == null || Game.getJestPoints(player) > Game.getJestPoints(winner)) {
                 winner = player;
             }
-            System.out.println(player);
+            System.out.println(RED + player + RESET);
         }
-        System.out.println("The winner is " + winner.getName());
+
+        System.out.println();
+        System.out.println(BLUE + "======================================" + RESET);
+        System.out.println(YELLOW + "🏅  The winner is " + RED + winner.getName() + YELLOW + "!  🎉" + RESET);
+        System.out.println(BLUE + "======================================" + RESET);
+        System.out.println(GREEN + "Thanks for playing Jest! 👏" + RESET);
     }
+
 
     public int makeChoice(int min, int max) {
         Scanner scanner = new Scanner(System.in);

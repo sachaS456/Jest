@@ -150,17 +150,28 @@ public abstract class Player {
         this.jest.add(card);
     }
 
-    public Player playTurn(Game game){
-        System.out.println(this.getName() + ", which card do you want to pick ?");
+    public Player playTurn(Game game) {
+        final String RESET  = "\u001B[0m";
+        final String RED    = "\u001B[31m";
+        final String YELLOW = "\u001B[33m";
+        final String BLUE   = "\u001B[34m";
+        final String GREEN  = "\u001B[32m";
+
+        System.out.println(RED + this.getName() + RESET + ", " + YELLOW + "which card do you want to pick ?" + RESET);
+
         int cardNumber = 1;
         ArrayList<Card> possibleCardsToPick = new ArrayList<>();
         ArrayList<Player> cardOwners = new ArrayList<>();
 
         for (Player player : game.getPlayers()) {
-            if(player != this){
+            if (player != this) {
                 if (player.getVisibleCard() != null && player.getHiddenCard() != null) {
-                    System.out.println(player.getName() + ": " + "(" + cardNumber + ") "
-                            + player.getVisibleCard() + "(" + (cardNumber + 1) + ") hidden card 🫣");
+                    System.out.println(
+                            RED + player.getName() + RESET + ": \n" +
+                                    BLUE + "(" + cardNumber + ") " + RESET + player.getVisibleCard() + " " +
+                                    BLUE + "(" + (cardNumber + 1) + ") " + RESET + "hidden card 🫣"
+                    );
+
                     possibleCardsToPick.add(player.getVisibleCard());
                     cardOwners.add(player);
                     possibleCardsToPick.add(player.getHiddenCard());
@@ -168,23 +179,31 @@ public abstract class Player {
 
                     cardNumber += 2;
                 } else {
-                    System.out.println(player.getName() + " has only 1 card, so you can't pick it");
+                    System.out.println(
+                            RED + player.getName() + RESET +
+                                    YELLOW + " has only 1 card, so you can't pick it" + RESET
+                    );
                 }
             }
         }
 
-        if(possibleCardsToPick.isEmpty()){
-            System.out.println("There is no cards available to pick in your opponents offers. Please chose one of your card :");
-            System.out.println(this.getName() + ": " + "(" + cardNumber + ") "
-                    + this.getVisibleCard() + "(" + (cardNumber + 1) + ") hidden card 🫣");
+        if (possibleCardsToPick.isEmpty()) {
+            System.out.println(
+                    YELLOW + "There are no cards available to pick from your opponents. Please choose one of your own cards:" + RESET
+            );
+            System.out.println(
+                    RED + this.getName() + RESET + ": \n" +
+                            BLUE + "(" + cardNumber + ") " + RESET + this.getVisibleCard() + " " +
+                            BLUE + "(" + (cardNumber + 1) + ") " + RESET + "hidden card 🫣"
+            );
+
             possibleCardsToPick.add(this.getHiddenCard());
             cardOwners.add(this);
             possibleCardsToPick.add(this.getVisibleCard());
             cardOwners.add(this);
         }
 
-        System.out.println("-> ");
-
+        System.out.print(BLUE + "-> " + RESET);
         int cardToPick = this.makeChoice(1, possibleCardsToPick.size() + 1);
 
         Card pickedCard = possibleCardsToPick.get(cardToPick - 1);
@@ -192,30 +211,49 @@ public abstract class Player {
 
         this.pickCard(pickedCard, nextPlayer);
 
-        if(game.countPlayersWithFullOffer() == 0){
+        if (game.countPlayersWithFullOffer() == 0) {
             return null;
         }
 
-        // next player is the player with current highest card if next player has already play
-        if(game.getPlayersThatHavePlayedThisRound().contains(nextPlayer)){
+        if (game.getPlayersThatHavePlayedThisRound().contains(nextPlayer)) {
             nextPlayer = game.getPlayersOrder();
         }
+
+        System.out.println(GREEN + "You picked a card from " + nextPlayer.getName() + "!" + RESET);
         return nextPlayer;
     }
 
+
     public abstract int makeChoice(int min, int max);
 
-    public void chooseCardToHide(Card card1, Card card2){
-        System.out.println(this.getName() + ", which card do you want to hide ? (1, 2)");
-        System.out.println("(1) Card 1: " + card1);
-        System.out.println("(2) Card 2: " + card2);
+    public void chooseCardToHide(Card card1, Card card2) {
+        final String RESET  = "\u001B[0m";
+        final String RED    = "\u001B[31m";
+        final String YELLOW = "\u001B[33m";
+        final String BLUE   = "\u001B[34m";
+        final String GREEN  = "\u001B[32m";
+
+        System.out.println(
+                RED + this.getName() + RESET + ", " +
+                        YELLOW + "which card do you want to hide? " +
+                        BLUE + "(1, 2)" + RESET
+        );
+
+        System.out.println(BLUE + "(1) " + RESET + card1);
+        System.out.println(BLUE + "(2) " + RESET + card2);
+
+        System.out.print(BLUE + "-> " + RESET);
         int cardToHide = this.makeChoice(1, 2);
-        if(cardToHide == 1){
+
+        if (cardToHide == 1) {
             this.setHiddenCard(card1);
             this.setVisibleCard(card2);
-        }else {
+        } else {
             this.setHiddenCard(card2);
             this.setVisibleCard(card1);
         }
+
+        System.out.println(GREEN + "You chose to hide card " + cardToHide + "." + RESET);
     }
+
 }
