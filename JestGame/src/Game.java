@@ -141,7 +141,11 @@ public class Game {
         for(int i = 0; i < playerNumber; i++){
             System.out.println("Player " + (i + 1) + ", what's your name?:");
             String playerName = scanner.next();
-            this.addPlayer(new AI(playerName));
+            if(playerName.toLowerCase().contains("bot")){
+                this.addPlayer(new AI(playerName));
+            }else{
+                this.addPlayer(new Human(playerName));
+            }
         }
         this.setTrophies();
         System.out.println(this.trophiesToString());
@@ -331,10 +335,6 @@ public class Game {
 
         return score;
 
-    }
-
-    public void addTrophy(Player player){
-        // TODO:
     }
 
     public void setTrophies(){

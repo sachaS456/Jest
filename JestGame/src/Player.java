@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.Scanner;
 
 public abstract class Player {
@@ -183,8 +184,8 @@ public abstract class Player {
         }
 
         System.out.println("-> ");
-        Scanner scanner = new Scanner(System.in);
-        int cardToPick = scanner.nextInt();
+
+        int cardToPick = this.makeChoice(1, possibleCardsToPick.size() + 1);
 
         Card pickedCard = possibleCardsToPick.get(cardToPick - 1);
         Player nextPlayer = cardOwners.get(cardToPick - 1);
@@ -202,12 +203,13 @@ public abstract class Player {
         return nextPlayer;
     }
 
+    public abstract int makeChoice(int min, int max);
+
     public void chooseCardToHide(Card card1, Card card2){
-        Scanner scanner = new Scanner(System.in);
         System.out.println(this.getName() + ", which card do you want to hide ? (1, 2)");
         System.out.println("(1) Card 1: " + card1);
         System.out.println("(2) Card 2: " + card2);
-        int cardToHide = scanner.nextInt();
+        int cardToHide = this.makeChoice(1, 2);
         if(cardToHide == 1){
             this.setHiddenCard(card1);
             this.setVisibleCard(card2);
