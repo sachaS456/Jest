@@ -225,4 +225,19 @@ public class Player {
         }
         return nextPlayer;
     }
+
+    public void chooseCardToHide(Card card1, Card card2){
+        Scanner scanner = new Scanner(System.in);
+        System.out.println(this.getName() + ", which card do you want to hide ? (1, 2)");
+        System.out.println("(1) Card 1: " + card1);
+        System.out.println("(2) Card 2: " + card2);
+        int cardToHide = scanner.nextInt();
+        if(cardToHide == 1){
+            this.setHiddenCard(card1);
+            this.setVisibleCard(card2);
+        }else {
+            this.setHiddenCard(card2);
+            this.setVisibleCard(card1);
+        }
+    }
 }

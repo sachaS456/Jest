@@ -102,23 +102,12 @@ public class Game {
             distributionPool = this.cards;
         }
 
-        Scanner scanner = new Scanner(System.in);
         for(Player player : this.players){
             int random = (int) ((distributionPool.size() * Math.random()));
             Card card1 = distributionPool.remove(random);
             random = (int) ((distributionPool.size() * Math.random()));
             Card card2 = distributionPool.remove(random);
-            System.out.println(player.getName() + ", which card do you want to hide ? (1, 2)");
-            System.out.println("(1) Card 1: " + card1);
-            System.out.println("(2) Card 2: " + card2);
-            int cardToHide = scanner.nextInt();
-            if(cardToHide == 1){
-                player.setHiddenCard(card1);
-                player.setVisibleCard(card2);
-            }else {
-                player.setHiddenCard(card2);
-                player.setVisibleCard(card1);
-            }
+            player.chooseCardToHide(card1, card2);
         }
     }
 
