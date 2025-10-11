@@ -1,6 +1,8 @@
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 public class Game {
@@ -314,107 +316,61 @@ public class Game {
         this.players = players;
     }
 
-    public static int getJestPoints(Player player){
+    public static int getJestPoints(Player player) {
         int score = 0;
-        int heartNumber = 0;
-        int spikeNumber = 0;
-        int cloverNumber = 0;
-        int tileNumber = 0;
-        ArrayList<Integer> spikeValues = new ArrayList<>();
-        ArrayList<Integer> cloverValues = new ArrayList<>();
+        boolean hasJoker = player.hasJokerCard();
 
+        Map<Sign, List<Integer>> cardsBySign = new EnumMap<>(Sign.class);
+        for (Sign sign : Sign.values()) {
+            cardsBySign.put(sign, new ArrayList<>());
+        }
 
-        // count the hearts
-        for(Card card : player.getJest()){
-            if(card instanceof SuitCard){
-                if(((SuitCard) card).getSign() == Sign.HEARTH){
-                    heartNumber++;
-                }
-                if(((SuitCard) card).getSign() == Sign.TILE){
-                    tileNumber++;
-                }
-                if(((SuitCard) card).getSign() == Sign.CLOVER){
-                    cloverNumber++;
-                    cloverValues.add(((SuitCard) card).getValue());
-                }
-                if(((SuitCard) card).getSign() == Sign.SPIKE){
-                    spikeNumber++;
-                    spikeValues.add(((SuitCard) card).getValue());
-                }
+        for (Card card : player.getJest()) {
+            if (card instanceof SuitCard) {
+                SuitCard suitCard = (SuitCard) card;
+                cardsBySign.get(suitCard.getSign()).add(suitCard.getValue());
             }
         }
 
-        if(player.hasJokerCard()){
-            for (Card card : player.getJest()){
-                if(card instanceof SuitCard){
-                    // Spike or clover
-                    if(((SuitCard) card).getSign() == Sign.SPIKE || ((SuitCard) card).getSign() == Sign.CLOVER){
-                        score += ((SuitCard) card).getValue();
-                    }
-                    // tile
-                    if(((SuitCard) card).getSign() == Sign.TILE){
-                        score -=  ((SuitCard) card).getValue();
-                    }
-                    // heart
-                    if(((SuitCard) card).getSign() == Sign.HEARTH){
-                        if(heartNumber >= 1 && heartNumber <= 3){
-                            score -= ((SuitCard) card).getValue();
-                        }
-                        if(heartNumber == 4){
-                            score +=  ((SuitCard) card).getValue();
-                        }
-                    }
+        int heartCount = cardsBySign.get(Sign.HEARTH).size();
+        int spikeCount = cardsBySign.get(Sign.SPIKE).size();
+        int cloverCount = cardsBySign.get(Sign.CLOVER).size();
+        int tileCount = cardsBySign.get(Sign.TILE).size();
 
-                    // if card is an Ace with unique Sign in Jest
-                    if(((SuitCard) card).getSign() == Sign.HEARTH && heartNumber == 1){
-                        score += 4;
-                    }
-                    if(((SuitCard) card).getSign() == Sign.SPIKE && spikeNumber == 1){
-                        score += 4;
-                    }
-                    if(((SuitCard) card).getSign() == Sign.CLOVER && cloverNumber == 1){
-                        score += 4;
-                    }
-                    if(((SuitCard) card).getSign() == Sign.TILE && tileNumber == 1){
-                        score += 4;
-                    }
+        for (Integer value : cardsBySign.get(Sign.SPIKE)) {
+            score += value;
+        }
+        for (Integer value : cardsBySign.get(Sign.CLOVER)) {
+            score += value;
+        }
+
+        for (Integer value : cardsBySign.get(Sign.TILE)) {
+            score -= value;
+        }
+
+        if (hasJoker) {
+            if (heartCount >= 1 && heartCount <= 3) {
+                for (Integer value : cardsBySign.get(Sign.HEARTH)) {
+                    score -= value;
+                }
+            } else if (heartCount == 4) {
+                for (Integer value : cardsBySign.get(Sign.HEARTH)) {
+                    score += value;
                 }
             }
-            if(heartNumber == 0){
+
+            if (heartCount == 0) {
                 score += 4;
             }
         }
-        else {
-            // if the player doesn't have the Joker
-            for (Card card : player.getJest()) {
-                // Spike or clover
-                if (((SuitCard) card).getSign() == Sign.SPIKE || ((SuitCard) card).getSign() == Sign.CLOVER) {
-                    score += ((SuitCard) card).getValue();
-                }
-                // tile
-                if (((SuitCard) card).getSign() == Sign.TILE) {
-                    score -= ((SuitCard) card).getValue();
-                }
 
-                // if card is an Ace with unique Sign in Jest
-                if(((SuitCard) card).getSign() == Sign.HEARTH && heartNumber == 1){
-                    score += 4;
-                }
-                if(((SuitCard) card).getSign() == Sign.SPIKE && spikeNumber == 1){
-                    score += 4;
-                }
-                if(((SuitCard) card).getSign() == Sign.CLOVER && cloverNumber == 1){
-                    score += 4;
-                }
-                if(((SuitCard) card).getSign() == Sign.TILE && tileNumber == 1){
-                    score += 4;
-                }
-            }
-        }
+        if (heartCount == 1) score += 4;
+        if (spikeCount == 1) score += 4;
+        if (cloverCount == 1) score += 4;
+        if (tileCount == 1) score += 4;
 
-        // spike and clover with the same face value worth a bonus of 2 points
-        for(int value : spikeValues){
-            if(cloverValues.contains(value)){
+        for (Integer spikeValue : cardsBySign.get(Sign.SPIKE)) {
+            if (cardsBySign.get(Sign.CLOVER).contains(spikeValue)) {
                 score += 2;
             }
         }
