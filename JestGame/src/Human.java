@@ -7,7 +7,7 @@ public class Human extends Player {
     }
 
     @Override
-    public int makeChoice(int min, int max) {
+    public int makeChoice(int min, int max, ArrayList<Card> cards) {
         Scanner scanner = new Scanner(System.in);
         int choice;
 

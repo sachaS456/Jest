@@ -177,7 +177,7 @@ public class Game {
             String playerName = scanner.next();
 
             if (playerName.toLowerCase().contains("bot")) {
-                this.addPlayer(new AI(playerName));
+                this.addPlayer(new AI(playerName, new RandomStrategy()));
                 System.out.println(GREEN + "🤖 Added bot player: " + RED + playerName + RESET);
             } else {
                 this.addPlayer(new Human(playerName));
