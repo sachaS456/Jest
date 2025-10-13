@@ -3,7 +3,7 @@ import java.util.ArrayList;
 public class SafeStrategy implements IPlayStrategy {
     @Override
     public int makeChoice(int min, int max, ArrayList<Card> cards, boolean isHidingCard) {
-        // if the AI have to hide a card
+        // if the AI have to hide a card he will try to hide Spades or Clubs
         if(isHidingCard){
             if(cards.getFirst() instanceof SuitCard && (((SuitCard) cards.getFirst()).getSign() == Sign.SPIKE || ((SuitCard) cards.getFirst()).getSign() == Sign.CLOVER)){
                 return 0;
