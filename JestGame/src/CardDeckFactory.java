@@ -30,11 +30,42 @@ public class CardDeckFactory {
         return cards;
     }
 
+    public static ArrayList<Card> createExpansionDeck() {
+        ArrayList<Card> expansionCards = new ArrayList<>();
+
+        expansionCards.add(new SuitCard(true, CardEffect.MOST_CARDS, 1, Color.BLACK, Sign.CLOVER));
+        expansionCards.add(new SuitCard(true, CardEffect.LEAST_CARDS, 2, Color.BLACK, Sign.CLOVER));
+        expansionCards.add(new SuitCard(true, CardEffect.EVEN_VALUES, 3, Color.RED, Sign.HEARTH));
+        expansionCards.add(new SuitCard(true, CardEffect.ODD_VALUES, 4, Color.RED, Sign.HEARTH));
+        expansionCards.add(new SuitCard(true, CardEffect.NO_DUPLICATES, 1, Color.BLACK, Sign.SPIKE));
+
+        expansionCards.add(new JokerCard(true, CardEffect.MOST_CARDS));
+
+        expansionCards.add(new SuitCard(true, CardEffect.HIGHEST, Sign.SPIKE, 5, Color.BLACK, Sign.SPIKE));
+        expansionCards.add(new SuitCard(true, CardEffect.LOWEST, Sign.TILE, 6, Color.RED, Sign.TILE));
+        expansionCards.add(new SuitCard(true, CardEffect.MAJORITY, 5, 7, Color.RED, Sign.HEARTH));
+
+        return expansionCards;
+    }
+
+    public static ArrayList<Card> createFullDeck() {
+        ArrayList<Card> fullDeck = createStandardDeck();
+        fullDeck.addAll(createExpansionDeck());
+        return fullDeck;
+    }
+
     public static ArrayList<Card> createCustomDeck() {
         return new ArrayList<>();
     }
 
     public static int getStandardDeckSize() {
         return 17;
+    }
+    public static int getExpansionDeckSize() {
+        return 9;
+    }
+
+    public static int getFullDeckSize() {
+        return getStandardDeckSize() + getExpansionDeckSize();
     }
 }

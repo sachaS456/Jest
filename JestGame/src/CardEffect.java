@@ -118,6 +118,101 @@ public enum CardEffect {
 
             return winner;
         }
+    },
+    // Effect for extension cards
+    MOST_CARDS {
+        @Override
+        public Player CheckEffect(int value, Sign sign, ArrayList<Player> players) {
+            Player winner = null;
+            int mostCards = 0;
+            for(Player player : players){
+                int cardCount = player.getJest().size();
+                if (cardCount > mostCards){
+                    winner = player;
+                    mostCards = cardCount;
+                }
+            }
+            return winner;
+        }
+    },
+    LEAST_CARDS {
+        @Override
+        public Player CheckEffect(int value, Sign sign, ArrayList<Player> players) {
+            Player winner = null;
+            int leastCards = Integer.MAX_VALUE;
+            for(Player player : players){
+                int cardCount = player.getJest().size();
+                if (cardCount < leastCards){
+                    winner = player;
+                    leastCards = cardCount;
+                }
+            }
+            return winner;
+        }
+    },
+    EVEN_VALUES {
+        @Override
+        public Player CheckEffect(int value, Sign sign, ArrayList<Player> players) {
+            Player winner = null;
+            int mostEvenCards = 0;
+            for(Player player : players){
+                int evenCount = 0;
+                for (Card card : player.getJest()) {
+                    if (card instanceof SuitCard suitCard && suitCard.getValue() % 2 == 0) {
+                        evenCount++;
+                    }
+                }
+                if (evenCount > mostEvenCards){
+                    winner = player;
+                    mostEvenCards = evenCount;
+                }
+            }
+            return winner;
+        }
+    },
+    ODD_VALUES {
+        @Override
+        public Player CheckEffect(int value, Sign sign, ArrayList<Player> players) {
+            Player winner = null;
+            int mostOddCards = 0;
+            for(Player player : players){
+                int oddCount = 0;
+                for (Card card : player.getJest()) {
+                    if (card instanceof SuitCard suitCard && suitCard.getValue() % 2 == 1) {
+                        oddCount++;
+                    }
+                }
+                if (oddCount > mostOddCards){
+                    winner = player;
+                    mostOddCards = oddCount;
+                }
+            }
+            return winner;
+        }
+    },
+    NO_DUPLICATES {
+        @Override
+        public Player CheckEffect(int value, Sign sign, ArrayList<Player> players) {
+            Player winner = null;
+            for(Player player : players){
+                boolean hasDuplicates = false;
+                ArrayList<Integer> values = new ArrayList<>();
+                for (Card card : player.getJest()) {
+                    if (card instanceof SuitCard suitCard) {
+                        if (values.contains(suitCard.getValue())) {
+                            hasDuplicates = true;
+                            break;
+                        }
+                        values.add(suitCard.getValue());
+                    }
+                }
+                if (!hasDuplicates) {
+                    winner = player;
+                    break;
+                }
+            }
+            return winner;
+        }
     };
 
 

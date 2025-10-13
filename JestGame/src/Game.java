@@ -12,8 +12,47 @@ public class Game {
     private ArrayList<Player> players;
 
     public static void main(String[] args) {
-       Game game = new Game();
-       game.playGame();
+        final String RESET  = "\u001B[0m";
+        final String RED    = "\u001B[31m";
+        final String YELLOW = "\u001B[33m";
+        final String GREEN  = "\u001B[32m";
+        final String BLUE   = "\u001B[34m";
+
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println(GREEN + "\n======================================" + RESET);
+        System.out.println(YELLOW + "🎴  Welcome to the Jest Card Game! 🎴" + RESET);
+        System.out.println(GREEN + "======================================\n" + RESET);
+
+        // ask to players if they want to include expansion cards
+        System.out.println(YELLOW + "Do you want to include expansion cards? (1 = Yes, 2 = No)" + RESET);
+        System.out.println(BLUE + "Expansion cards include new mechanics and effects!" + RESET);
+        System.out.print(BLUE + "-> " + RESET);
+
+        int expansionChoice;
+        do {
+            while (!scanner.hasNextInt()) {
+                System.out.println(RED + "Please enter 1 or 2" + RESET);
+                System.out.print(BLUE + "-> " + RESET);
+                scanner.next();
+            }
+            expansionChoice = scanner.nextInt();
+            if (expansionChoice != 1 && expansionChoice != 2) {
+                System.out.println(RED + "Please enter 1 for Yes or 2 for No" + RESET);
+                System.out.print(BLUE + "-> " + RESET);
+            }
+        } while (expansionChoice != 1 && expansionChoice != 2);
+
+        boolean includeExpansion = (expansionChoice == 1);
+
+        if (includeExpansion) {
+            System.out.println(GREEN + "🎉 Great! Playing with expansion cards (" + CardDeckFactory.getFullDeckSize() + " total cards)" + RESET);
+        } else {
+            System.out.println(GREEN + "🎯 Playing with standard cards only (" + CardDeckFactory.getStandardDeckSize() + " cards)" + RESET);
+        }
+
+        Game game = new Game(includeExpansion);
+        game.playGame();
     }
 
     public String trophiesToString(){
@@ -42,6 +81,17 @@ public class Game {
         this.roundNumber = 0;
         this.trophies = new  Card[2];
         this.cards = CardDeckFactory.createStandardDeck();
+        this.players = new ArrayList<>();
+    }
+
+    /**
+     * Constructeur avec option d'extension
+     * @param includeExpansion true pour inclure les cartes d'extension
+     */
+    public Game(boolean includeExpansion) {
+        this.roundNumber = 0;
+        this.trophies = new Card[2];
+        this.cards = includeExpansion ? CardDeckFactory.createFullDeck() : CardDeckFactory.createStandardDeck();
         this.players = new ArrayList<>();
     }
 
@@ -140,11 +190,6 @@ public class Game {
         final String BLUE   = "\u001B[34m";
 
         Scanner scanner = new Scanner(System.in);
-
-        System.out.println(GREEN + "\n======================================" + RESET);
-        System.out.println(YELLOW + "🎴  Welcome to the Jest Card Game! 🎴" + RESET);
-        System.out.println(GREEN + "======================================\n" + RESET);
-        sleep(1000);
 
         System.out.println(YELLOW + "How many players want to play? (3 or 4)" + RESET);
         System.out.print(BLUE + "-> " + RESET);
