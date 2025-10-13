@@ -16,4 +16,9 @@ public class JokerCard extends Card {
     public String toString() {
         return "Joker \n";
     }
+
+    @Override
+    public void accept(CardVisitor visitor) {
+        visitor.visit(this);
+    }
 }

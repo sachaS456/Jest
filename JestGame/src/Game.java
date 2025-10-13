@@ -317,66 +317,14 @@ public class Game {
     }
 
     public static int getJestPoints(Player player) {
-        int score = 0;
-        boolean hasJoker = player.hasJokerCard();
+        JestScoreVisitor scoreVisitor = new JestScoreVisitor();
 
-        Map<Sign, List<Integer>> cardsBySign = new EnumMap<>(Sign.class);
-        for (Sign sign : Sign.values()) {
-            cardsBySign.put(sign, new ArrayList<>());
-        }
-
+        // visit all player's cards in jest
         for (Card card : player.getJest()) {
-            if (card instanceof SuitCard) {
-                SuitCard suitCard = (SuitCard) card;
-                cardsBySign.get(suitCard.getSign()).add(suitCard.getValue());
-            }
+            card.accept(scoreVisitor);
         }
 
-        int heartCount = cardsBySign.get(Sign.HEARTH).size();
-        int spikeCount = cardsBySign.get(Sign.SPIKE).size();
-        int cloverCount = cardsBySign.get(Sign.CLOVER).size();
-        int tileCount = cardsBySign.get(Sign.TILE).size();
-
-        for (Integer value : cardsBySign.get(Sign.SPIKE)) {
-            score += value;
-        }
-        for (Integer value : cardsBySign.get(Sign.CLOVER)) {
-            score += value;
-        }
-
-        for (Integer value : cardsBySign.get(Sign.TILE)) {
-            score -= value;
-        }
-
-        if (hasJoker) {
-            if (heartCount >= 1 && heartCount <= 3) {
-                for (Integer value : cardsBySign.get(Sign.HEARTH)) {
-                    score -= value;
-                }
-            } else if (heartCount == 4) {
-                for (Integer value : cardsBySign.get(Sign.HEARTH)) {
-                    score += value;
-                }
-            }
-
-            if (heartCount == 0) {
-                score += 4;
-            }
-        }
-
-        if (heartCount == 1) score += 4;
-        if (spikeCount == 1) score += 4;
-        if (cloverCount == 1) score += 4;
-        if (tileCount == 1) score += 4;
-
-        for (Integer spikeValue : cardsBySign.get(Sign.SPIKE)) {
-            if (cardsBySign.get(Sign.CLOVER).contains(spikeValue)) {
-                score += 2;
-            }
-        }
-
-        return score;
-
+        return scoreVisitor.getScore();
     }
 
     public void setTrophies(){

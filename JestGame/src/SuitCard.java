@@ -45,4 +45,9 @@ public class SuitCard extends Card{
     public Sign getSign() {
         return sign;
     }
+
+    @Override
+    public void accept(CardVisitor visitor) {
+        visitor.visit(this);
+    }
 }

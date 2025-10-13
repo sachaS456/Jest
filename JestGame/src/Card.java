@@ -52,4 +52,6 @@ public abstract class Card {
     public Player checkEffect(ArrayList<Player> players) {
         return this.cardEffect.CheckEffect(this.valueEffect, this.signEffect, players);
     }
+
+    public abstract void accept(CardVisitor visitor);
 }
