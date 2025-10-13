@@ -209,7 +209,7 @@ public abstract class Player {
         }
 
         System.out.print(BLUE + "-> " + RESET);
-        int cardToPick = this.makeChoice(1, possibleCardsToPick.size() + 1, possibleCardsToPick);
+        int cardToPick = this.makeChoice(1, possibleCardsToPick.size() + 1, possibleCardsToPick, false);
 
         Card pickedCard = possibleCardsToPick.get(cardToPick - 1);
         Player nextPlayer = cardOwners.get(cardToPick - 1);
@@ -240,7 +240,7 @@ public abstract class Player {
 
 
 
-    public abstract int makeChoice(int min, int max, ArrayList<Card> cards);
+    public abstract int makeChoice(int min, int max, ArrayList<Card> cards, boolean isHidingCard);
 
     public void chooseCardToHide(Card card1, Card card2) {
         final String RESET  = "\u001B[0m";
@@ -265,7 +265,7 @@ public abstract class Player {
         ArrayList<Card> cards = new ArrayList<>();
         cards.add(card1);
         cards.add(card2);
-        int cardToHide = this.makeChoice(1, 3, cards);
+        int cardToHide = this.makeChoice(1, 3, cards, true);
         sleep(300);
 
         if (cardToHide == 1) {
