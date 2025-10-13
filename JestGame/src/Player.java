@@ -209,7 +209,11 @@ public abstract class Player {
         }
 
         System.out.print(BLUE + "-> " + RESET);
-        int cardToPick = this.makeChoice(1, possibleCardsToPick.size() + 1, possibleCardsToPick, false);
+        int cardToPick = this.makeChoice(1, possibleCardsToPick.size()+1, possibleCardsToPick, false);
+
+        if (cardToPick < 1 || cardToPick > possibleCardsToPick.size()) {
+            return null;
+        }
 
         Card pickedCard = possibleCardsToPick.get(cardToPick - 1);
         Player nextPlayer = cardOwners.get(cardToPick - 1);
@@ -223,6 +227,11 @@ public abstract class Player {
 
         if (game.getPlayersThatHavePlayedThisRound().contains(nextPlayer)) {
             nextPlayer = game.getPlayersOrder();
+        }
+
+        if (nextPlayer == null) {
+            sleep(500);
+            return null;
         }
 
         System.out.println(GREEN + "You picked a card from " + nextPlayer.getName() + "!" + RESET);
@@ -249,6 +258,20 @@ public abstract class Player {
         final String BLUE   = "\u001B[34m";
         final String GREEN  = "\u001B[32m";
 
+        // Cas spécial : si card2 est null (pas assez de cartes disponibles)
+        if (card2 == null) {
+            System.out.println(
+                RED + this.getName() + RESET + ", " +
+                        YELLOW + "you only have one card available. It will be your visible card." + RESET
+            );
+            sleep(500);
+            this.setVisibleCard(card1);
+            this.setHiddenCard(null);
+            System.out.println(GREEN + "Card set as visible: " + card1 + RESET);
+            sleep(500);
+            return;
+        }
+
         System.out.println(
                 RED + this.getName() + RESET + ", " +
                         YELLOW + "which card do you want to hide? " +
@@ -265,7 +288,7 @@ public abstract class Player {
         ArrayList<Card> cards = new ArrayList<>();
         cards.add(card1);
         cards.add(card2);
-        int cardToHide = this.makeChoice(1, 3, cards, true);
+        int cardToHide = this.makeChoice(1, 2, cards, true);
         sleep(300);
 
         if (cardToHide == 1) {

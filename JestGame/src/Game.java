@@ -117,15 +117,18 @@ public class Game {
         if(this.roundNumber > 1){
             ArrayList<Card> gameCards = new ArrayList<>();
             ArrayList<Card> playerCards = new ArrayList<>();
-            for(int i = 0; i < this.players.size(); i++){
-                int random = (int) ((this.cards.size() * Math.random()));
+
+            for(int i = 0; i < this.players.size() && !this.cards.isEmpty(); i++){
+                int random = (int) (this.cards.size() * Math.random());
                 gameCards.add(this.cards.remove(random));
             }
+
             for(Player player : this.players){
-                playerCards.add(player.removeLastCardFromOffer());
+                Card removedCard = player.removeLastCardFromOffer();
+                if(removedCard != null) {
+                    playerCards.add(removedCard);
+                }
             }
-
-
 
             distributionPool.addAll(gameCards);
             distributionPool.addAll(playerCards);
@@ -135,12 +138,32 @@ public class Game {
             distributionPool = this.cards;
         }
 
-        for(Player player : this.players){
-            int random = (int) ((distributionPool.size() * Math.random()));
-            Card card1 = distributionPool.remove(random);
-            random = (int) ((distributionPool.size() * Math.random()));
-            Card card2 = distributionPool.remove(random);
-            player.chooseCardToHide(card1, card2);
+        int cardsNeeded = this.players.size() * 2;
+        if (distributionPool.size() < cardsNeeded) {
+            System.out.println("⚠️ Warning: Not enough cards for full distribution. Adjusting...");
+            for(Player player : this.players){
+                if (!distributionPool.isEmpty()) {
+                    int random = (int) (distributionPool.size() * Math.random());
+                    Card card1 = distributionPool.remove(random);
+                    player.chooseCardToHide(card1, null);
+                }
+            }
+        } else {
+            for(Player player : this.players){
+                if (distributionPool.size() >= 2) {
+                    int random = (int) (distributionPool.size() * Math.random());
+                    Card card1 = distributionPool.remove(random);
+                    random = (int) (distributionPool.size() * Math.random());
+                    Card card2 = distributionPool.remove(random);
+                    player.chooseCardToHide(card1, card2);
+                } else if (distributionPool.size() == 1) {
+                    Card card1 = distributionPool.remove(0);
+                    player.chooseCardToHide(card1, null);
+                } else {
+                    System.out.println("⚠️ Critical: No cards available for player " + player.getName());
+                    break;
+                }
+            }
         }
     }
 
@@ -292,22 +315,30 @@ public class Game {
     public Player getPlayersOrder() {
         Player highScorePlayer = null;
         for(Player player : this.players){
-            // the starting player can't have the Joker because it is the only card valued at 0 and must have not play
-            if(!(player.getVisibleCard() instanceof JokerCard) && !(this.getPlayersThatHavePlayedThisRound().contains(player))){
+            if(player.getVisibleCard() != null &&
+               !(player.getVisibleCard() instanceof JokerCard) &&
+               !(this.getPlayersThatHavePlayedThisRound().contains(player))){
+
                 if(highScorePlayer == null){
                     highScorePlayer = player;
-                }
-                SuitCard highScorePlayerVisibleCard = (SuitCard) highScorePlayer.getVisibleCard();
-                SuitCard playerVisibleCard = (SuitCard) player.getVisibleCard();
-                if(playerVisibleCard.getValue() > highScorePlayerVisibleCard.getValue()){
-                    highScorePlayer = player;
-                }else if(playerVisibleCard.getValue() == highScorePlayerVisibleCard.getValue()){
-                    Sign[] cardsSignOrder = {Sign.HEARTH, Sign.TILE, Sign.CLOVER, Sign.SPIKE};
-                    List<Sign> signOrderList = Arrays.asList(cardsSignOrder);
-                    int playerCardIndex = signOrderList.indexOf(playerVisibleCard.getSign());
-                    int highScorePlayerCardIndex = signOrderList.indexOf(highScorePlayerVisibleCard.getSign());
-                    if(playerCardIndex > highScorePlayerCardIndex){
+                } else {
+                    if(highScorePlayer.getVisibleCard() == null) {
                         highScorePlayer = player;
+                    } else {
+                        SuitCard highScorePlayerVisibleCard = (SuitCard) highScorePlayer.getVisibleCard();
+                        SuitCard playerVisibleCard = (SuitCard) player.getVisibleCard();
+
+                        if(playerVisibleCard.getValue() > highScorePlayerVisibleCard.getValue()){
+                            highScorePlayer = player;
+                        }else if(playerVisibleCard.getValue() == highScorePlayerVisibleCard.getValue()){
+                            Sign[] cardsSignOrder = {Sign.HEARTH, Sign.TILE, Sign.CLOVER, Sign.SPIKE};
+                            List<Sign> signOrderList = Arrays.asList(cardsSignOrder);
+                            int playerCardIndex = signOrderList.indexOf(playerVisibleCard.getSign());
+                            int highScorePlayerCardIndex = signOrderList.indexOf(highScorePlayerVisibleCard.getSign());
+                            if(playerCardIndex > highScorePlayerCardIndex){
+                                highScorePlayer = player;
+                            }
+                        }
                     }
                 }
             }
@@ -345,7 +376,9 @@ public class Game {
 
         // visit all player's cards in jest
         for (Card card : player.getJest()) {
-            card.accept(scoreVisitor);
+            if (card != null) {
+                card.accept(scoreVisitor);
+            }
         }
 
         return scoreVisitor.getScore();
