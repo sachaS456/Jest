@@ -10,6 +10,7 @@ public class Game {
     private ArrayList<Card> cards;
     private Card[] trophies;
     private ArrayList<Player> players;
+    private GameVariant variant;
 
     public static void main(String[] args) {
         final String RESET  = "\u001B[0m";
@@ -17,6 +18,7 @@ public class Game {
         final String YELLOW = "\u001B[33m";
         final String GREEN  = "\u001B[32m";
         final String BLUE   = "\u001B[34m";
+        final String CYAN   = "\u001B[36m";
 
         Scanner scanner = new Scanner(System.in);
 
@@ -51,7 +53,43 @@ public class Game {
             System.out.println(GREEN + "🎯 Playing with standard cards only (" + CardDeckFactory.getStandardDeckSize() + " cards)" + RESET);
         }
 
-        Game game = new Game(includeExpansion);
+        System.out.println("\n" + CYAN + "======================================" + RESET);
+        System.out.println(YELLOW + "🎮  Choose a Game Variant  🎮" + RESET);
+        System.out.println(CYAN + "======================================" + RESET);
+
+        GameVariant[] variants = {
+            new ClassicVariant(),
+            new SpeedVariant(),
+            new HighStakesVariant()
+        };
+
+        for (int i = 0; i < variants.length; i++) {
+            System.out.println(BLUE + (i + 1) + ". " + variants[i].getName() + RESET);
+            System.out.println(YELLOW + "   " + variants[i].getDescription() + RESET);
+        }
+
+        System.out.println(GREEN + "\nSelect variant (1-" + variants.length + "):" + RESET);
+        System.out.print(BLUE + "-> " + RESET);
+
+        int variantChoice;
+        do {
+            while (!scanner.hasNextInt()) {
+                System.out.println(RED + "Please enter a number between 1 and " + variants.length + RESET);
+                System.out.print(BLUE + "-> " + RESET);
+                scanner.next();
+            }
+            variantChoice = scanner.nextInt();
+            if (variantChoice < 1 || variantChoice > variants.length) {
+                System.out.println(RED + "Please enter a number between 1 and " + variants.length + RESET);
+                System.out.print(BLUE + "-> " + RESET);
+            }
+        } while (variantChoice < 1 || variantChoice > variants.length);
+
+        GameVariant selectedVariant = variants[variantChoice - 1];
+        System.out.println(GREEN + "✅ Variant selected: " + CYAN + selectedVariant.getName() + RESET);
+        System.out.println(YELLOW + selectedVariant.getDescription() + RESET + "\n");
+
+        Game game = new Game(includeExpansion, selectedVariant);
         game.playGame();
     }
 
@@ -82,17 +120,23 @@ public class Game {
         this.trophies = new  Card[2];
         this.cards = CardDeckFactory.createStandardDeck();
         this.players = new ArrayList<>();
+        this.variant = new ClassicVariant();
     }
 
-    /**
-     * Constructeur avec option d'extension
-     * @param includeExpansion true pour inclure les cartes d'extension
-     */
     public Game(boolean includeExpansion) {
         this.roundNumber = 0;
         this.trophies = new Card[2];
         this.cards = includeExpansion ? CardDeckFactory.createFullDeck() : CardDeckFactory.createStandardDeck();
         this.players = new ArrayList<>();
+        this.variant = new ClassicVariant();
+    }
+
+    public Game(boolean includeExpansion, GameVariant variant) {
+        this.roundNumber = 0;
+        this.trophies = new Card[2];
+        this.cards = includeExpansion ? CardDeckFactory.createFullDeck() : CardDeckFactory.createStandardDeck();
+        this.players = new ArrayList<>();
+        this.variant = variant;
     }
 
 
@@ -177,6 +221,9 @@ public class Game {
         this.setRoundNumber(this.getRoundNumber() + 1);
 
         System.out.println(GREEN + "===== ROUND " + this.getRoundNumber() + " =====" + RESET);
+
+        variant.applyRoundStartRules(this);
+
         System.out.println(YELLOW + "Let's give the cards! Please don't watch the chosen hidden card of the player!" + RESET + "\n");
 
         this.distribute();
@@ -192,6 +239,8 @@ public class Game {
             System.out.println(BLUE + "\nNext turn!" + RESET);
             currentPlayer = currentPlayer.playTurn(this);
         }
+
+        variant.applyRoundEndRules(this);
 
         System.out.println(GREEN + "\nThe round has ended!" + RESET);
     }
@@ -256,7 +305,8 @@ public class Game {
 
         for (Player player : this.getPlayers()) {
             player.addLastCardToJest();
-            System.out.println(GREEN + "Points: " + RESET + Game.getJestPoints(player));
+            int points = variant.calculatePoints(player);
+            System.out.println(GREEN + "Points: " + RESET + points);
             System.out.println(RED + player + RESET);
             sleep(500);
         }
@@ -266,10 +316,13 @@ public class Game {
 
         System.out.println(YELLOW + "\nLet's reveal players' Jests with Trophies! 👀" + RESET);
         Player winner = null;
+        int maxPoints = 0;
         for (Player player : this.getPlayers()) {
-            System.out.println(GREEN + "Points: " + RESET + Game.getJestPoints(player));
-            if (winner == null || Game.getJestPoints(player) > Game.getJestPoints(winner)) {
+            int points = variant.calculatePoints(player);
+            System.out.println(GREEN + "Points: " + RESET + points);
+            if (winner == null || points > maxPoints) {
                 winner = player;
+                maxPoints = points;
             }
             System.out.println(RED + player + RESET);
             sleep(500);
