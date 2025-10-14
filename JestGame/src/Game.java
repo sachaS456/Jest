@@ -19,6 +19,7 @@ public class Game {
         final String GREEN  = "\u001B[32m";
         final String BLUE   = "\u001B[34m";
         final String CYAN   = "\u001B[36m";
+        final String PURPLE = "\u001B[35m";
 
         Scanner scanner = new Scanner(System.in);
 
@@ -26,7 +27,76 @@ public class Game {
         System.out.println(YELLOW + "🎴  Welcome to the Jest Card Game! 🎴" + RESET);
         System.out.println(GREEN + "======================================\n" + RESET);
 
-        // ask to players if they want to include expansion cards
+        String[] saves = GameSaver.listSaves();
+        Game game = null;
+        boolean includeExpansion = false;
+
+        if (saves.length > 0) {
+            System.out.println(PURPLE + "💾 Saved games found!" + RESET);
+            System.out.println(YELLOW + "Do you want to:" + RESET);
+            System.out.println(BLUE + "1. Start a new game" + RESET);
+            System.out.println(BLUE + "2. Load a saved game" + RESET);
+            System.out.print(BLUE + "-> " + RESET);
+
+            int loadChoice;
+            do {
+                while (!scanner.hasNextInt()) {
+                    System.out.println(RED + "Please enter 1 or 2" + RESET);
+                    System.out.print(BLUE + "-> " + RESET);
+                    scanner.next();
+                }
+                loadChoice = scanner.nextInt();
+                if (loadChoice != 1 && loadChoice != 2) {
+                    System.out.println(RED + "Please enter 1 or 2" + RESET);
+                    System.out.print(BLUE + "-> " + RESET);
+                }
+            } while (loadChoice != 1 && loadChoice != 2);
+
+            if (loadChoice == 2) {
+                System.out.println("\n" + CYAN + "Available saves:" + RESET);
+                for (int i = 0; i < saves.length; i++) {
+                    System.out.println(BLUE + (i + 1) + ". " + saves[i] + RESET);
+                }
+
+                System.out.println(GREEN + "\nSelect save to load (1-" + saves.length + "):" + RESET);
+                System.out.print(BLUE + "-> " + RESET);
+
+                int saveChoice;
+                do {
+                    while (!scanner.hasNextInt()) {
+                        System.out.println(RED + "Please enter a number between 1 and " + saves.length + RESET);
+                        System.out.print(BLUE + "-> " + RESET);
+                        scanner.next();
+                    }
+                    saveChoice = scanner.nextInt();
+                    if (saveChoice < 1 || saveChoice > saves.length) {
+                        System.out.println(RED + "Please enter a number between 1 and " + saves.length + RESET);
+                        System.out.print(BLUE + "-> " + RESET);
+                    }
+                } while (saveChoice < 1 || saveChoice > saves.length);
+
+                GameState loadedState = GameSaver.loadGame(saves[saveChoice - 1]);
+                if (loadedState != null) {
+                    game = restoreGame(loadedState);
+                    includeExpansion = loadedState.isIncludeExpansion();
+                    System.out.println(GREEN + "✅ Game loaded successfully!" + RESET);
+                    System.out.println(YELLOW + "Resuming from Round " + game.getRoundNumber() + RESET);
+
+                    System.out.println(CYAN + "\nPlayers in this game:" + RESET);
+                    for (Player player : game.getPlayers()) {
+                        String playerType = player instanceof AI ? "🤖 AI" : "👤 Human";
+                        System.out.println(BLUE + "  - " + player.getName() + " " + playerType + RESET);
+                    }
+                    System.out.println();
+
+                    game.playGame(true);
+                    return;
+                } else {
+                    System.out.println(RED + "❌ Failed to load game. Starting new game..." + RESET);
+                }
+            }
+        }
+
         System.out.println(YELLOW + "Do you want to include expansion cards? (1 = Yes, 2 = No)" + RESET);
         System.out.println(BLUE + "Expansion cards include new mechanics and effects!" + RESET);
         System.out.print(BLUE + "-> " + RESET);
@@ -45,7 +115,7 @@ public class Game {
             }
         } while (expansionChoice != 1 && expansionChoice != 2);
 
-        boolean includeExpansion = (expansionChoice == 1);
+        includeExpansion = (expansionChoice == 1);
 
         if (includeExpansion) {
             System.out.println(GREEN + "🎉 Great! Playing with expansion cards (" + CardDeckFactory.getFullDeckSize() + " total cards)" + RESET);
@@ -89,8 +159,53 @@ public class Game {
         System.out.println(GREEN + "✅ Variant selected: " + CYAN + selectedVariant.getName() + RESET);
         System.out.println(YELLOW + selectedVariant.getDescription() + RESET + "\n");
 
-        Game game = new Game(includeExpansion, selectedVariant);
+        game = new Game(includeExpansion, selectedVariant);
         game.playGame();
+    }
+
+    private static Game restoreGame(GameState state) {
+        Game game = new Game(state.isIncludeExpansion());
+
+        game.setRoundNumber(state.getRoundNumber());
+        game.setCards(state.getCards());
+        game.setTrophies(state.getTrophies());
+
+        GameVariant variant;
+        switch (state.getVariantName()) {
+            case "Speed":
+                variant = new SpeedVariant();
+                break;
+            case "High Stakes":
+                variant = new HighStakesVariant();
+                break;
+            default:
+                variant = new ClassicVariant();
+                break;
+        }
+        game.setVariant(variant);
+
+        ArrayList<Player> restoredPlayers = new ArrayList<>();
+        for (GameState.PlayerState playerState : state.getPlayerStates()) {
+            Player player;
+            if (playerState.isAI()) {
+                player = new AI(playerState.getName());
+            } else {
+                player = new Human(playerState.getName());
+            }
+
+            player.setJest(playerState.getJest());
+            Card[] offer = playerState.getOffer();
+            if (offer.length >= 2) {
+                player.setOffer(offer[0], offer[1]);
+            } else if (offer.length == 1) {
+                player.setOffer(offer[0], null);
+            }
+
+            restoredPlayers.add(player);
+        }
+        game.setPlayers(restoredPlayers);
+
+        return game;
     }
 
     public String trophiesToString(){
@@ -139,7 +254,6 @@ public class Game {
         this.variant = variant;
     }
 
-
     public void addPlayer(Player player){
         this.players.add(player);
     }
@@ -157,7 +271,6 @@ public class Game {
     public void distribute()
     {
         ArrayList<Card> distributionPool = new ArrayList<>();
-        // merge players cards of offer left with a number of cards of the Game equals to the number of players in round >1
         if(this.roundNumber > 1){
             ArrayList<Card> gameCards = new ArrayList<>();
             ArrayList<Card> playerCards = new ArrayList<>();
@@ -245,7 +358,6 @@ public class Game {
         System.out.println(GREEN + "\nThe round has ended!" + RESET);
     }
 
-
     public int getRoundNumber() {
         return roundNumber;
     }
@@ -255,48 +367,72 @@ public class Game {
     }
 
     public void playGame() {
+        playGame(false);
+    }
+
+    public void playGame(boolean isResumed) {
         final String RESET  = "\u001B[0m";
         final String RED    = "\u001B[31m";
         final String YELLOW = "\u001B[33m";
         final String GREEN  = "\u001B[32m";
         final String BLUE   = "\u001B[34m";
+        final String PURPLE = "\u001B[35m";
 
         Scanner scanner = new Scanner(System.in);
+        boolean includeExpansion = this.cards.size() > CardDeckFactory.getStandardDeckSize();
 
-        System.out.println(YELLOW + "How many players want to play? (3 or 4)" + RESET);
-        System.out.print(BLUE + "-> " + RESET);
-        int playerNumber = this.makeChoice(3, 4);
-
-        for (int i = 0; i < playerNumber; i++) {
-            System.out.println(BLUE + "Player " + (i + 1) + ", what's your name?:" + RESET);
+        if (!isResumed) {
+            System.out.println(YELLOW + "How many players want to play? (3 or 4)" + RESET);
             System.out.print(BLUE + "-> " + RESET);
-            String playerName = scanner.next();
+            int playerNumber = this.makeChoice(3, 4);
 
-            if (playerName.toLowerCase().contains("bot")) {
-                this.addPlayer(new AI(playerName));
-                System.out.println(GREEN + "🤖 Added bot player: " + RED + playerName + RESET);
-            } else {
-                this.addPlayer(new Human(playerName));
-                System.out.println(GREEN + "👤 Added human player: " + RED + playerName + RESET);
+            for (int i = 0; i < playerNumber; i++) {
+                System.out.println(BLUE + "Player " + (i + 1) + ", what's your name?:" + RESET);
+                System.out.print(BLUE + "-> " + RESET);
+                String playerName = scanner.next();
+
+                if (playerName.toLowerCase().contains("bot")) {
+                    this.addPlayer(new AI(playerName));
+                    System.out.println(GREEN + "🤖 Added bot player: " + RED + playerName + RESET);
+                } else {
+                    this.addPlayer(new Human(playerName));
+                    System.out.println(GREEN + "👤 Added human player: " + RED + playerName + RESET);
+                }
+                sleep(500);
             }
+
+            this.setTrophies();
             sleep(500);
+
+            System.out.println();
+            System.out.println(BLUE + "----------------------------------" + RESET);
+            System.out.println(YELLOW + "🏆  Trophies have been updated!  🏆" + RESET);
+            System.out.println(GREEN + this.trophiesToString() + RESET);
+            System.out.println(BLUE + "----------------------------------" + RESET);
+            System.out.println();
+            sleep(1000);
         }
-
-        this.setTrophies();
-        sleep(500);
-
-        System.out.println();
-        System.out.println(BLUE + "----------------------------------" + RESET);
-        System.out.println(YELLOW + "🏆  Trophies have been updated!  🏆" + RESET);
-        System.out.println(GREEN + this.trophiesToString() + RESET);
-        System.out.println(BLUE + "----------------------------------" + RESET);
-        System.out.println();
-        sleep(1000);
 
         while (!this.getCards().isEmpty()) {
             this.playRound();
             System.out.println(GREEN + "\nEnd of Round " + this.roundNumber + RESET);
             System.out.println(BLUE + "Remaining cards: " + this.getCards().size() + RESET + "\n");
+
+            System.out.println(PURPLE + "💾 Do you want to save the game? (1 = Yes, 2 = No)" + RESET);
+            System.out.print(BLUE + "-> " + RESET);
+
+            int saveChoice = this.makeChoice(1, 2);
+            if (saveChoice == 1) {
+                System.out.println(YELLOW + "Enter a name for this save (or press Enter for auto-generated name):" + RESET);
+                System.out.print(BLUE + "-> " + RESET);
+                scanner.nextLine();
+                String saveName = scanner.nextLine().trim();
+
+                if (GameSaver.saveGame(this, includeExpansion, saveName.isEmpty() ? null : saveName)) {
+                    System.out.println(GREEN + "✅ Game saved successfully!" + RESET);
+                }
+            }
+
             sleep(1000);
         }
 
@@ -343,14 +479,11 @@ public class Game {
         }
     }
 
-
-
     public int makeChoice(int min, int max) {
         Scanner scanner = new Scanner(System.in);
         int choice;
 
         do {
-
             while (!scanner.hasNextInt()) {
                 scanner.next();
             }
@@ -399,7 +532,6 @@ public class Game {
         return highScorePlayer;
     }
 
-
     public ArrayList<Card> getCards() {
         return cards;
     }
@@ -424,10 +556,17 @@ public class Game {
         this.players = players;
     }
 
+    public GameVariant getVariant() {
+        return variant;
+    }
+
+    public void setVariant(GameVariant variant) {
+        this.variant = variant;
+    }
+
     public static int getJestPoints(Player player) {
         JestScoreVisitor scoreVisitor = new JestScoreVisitor();
 
-        // visit all player's cards in jest
         for (Card card : player.getJest()) {
             if (card != null) {
                 card.accept(scoreVisitor);
@@ -468,3 +607,4 @@ public class Game {
         return count;
     }
 }
+

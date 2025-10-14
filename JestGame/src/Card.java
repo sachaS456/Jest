@@ -1,6 +1,9 @@
 import java.util.ArrayList;
+import java.io.Serializable;
 
-public abstract class Card {
+public abstract class Card implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private boolean isVisible;
     private final CardEffect cardEffect;
     private int valueEffect;
