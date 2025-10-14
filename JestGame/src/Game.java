@@ -185,7 +185,7 @@ public class Game {
         game.setVariant(variant);
 
         ArrayList<Player> restoredPlayers = new ArrayList<>();
-        for (GameState.PlayerState playerState : state.getPlayerStates()) {
+        for (PlayerState playerState : state.getPlayerStates()) {
             Player player;
             if (playerState.isAI()) {
                 player = new AI(playerState.getName());
@@ -607,4 +607,3 @@ public class Game {
         return count;
     }
 }
-
