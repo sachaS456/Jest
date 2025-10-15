@@ -1,6 +1,6 @@
 public enum Sign {
-    SPIKE,
-    CLOVER,
-    TILE,
+    SPADE,
+    CLUB,
+    DIAMOND,
     HEARTH
 }

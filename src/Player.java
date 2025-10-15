@@ -207,7 +207,7 @@ public abstract class Player {
         }
 
         System.out.print(BLUE + "-> " + RESET);
-        int cardToPick = this.makeChoice(1, possibleCardsToPick.size()+1, possibleCardsToPick, false);
+        int cardToPick = this.makeChoice(1, possibleCardsToPick.size(), possibleCardsToPick, false);
 
         if (cardToPick < 1 || cardToPick > possibleCardsToPick.size()) {
             return null;

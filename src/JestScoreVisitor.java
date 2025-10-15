@@ -28,17 +28,17 @@ public class JestScoreVisitor implements CardVisitor {
     @Override
     public int getScore() {
         int heartCount = cardsBySign.get(Sign.HEARTH).size();
-        int spikeCount = cardsBySign.get(Sign.SPIKE).size();
-        int cloverCount = cardsBySign.get(Sign.CLOVER).size();
-        int tileCount = cardsBySign.get(Sign.TILE).size();
+        int spadeCount = cardsBySign.get(Sign.SPADE).size();
+        int clubCount = cardsBySign.get(Sign.CLUB).size();
+        int diamondCount = cardsBySign.get(Sign.DIAMOND).size();
 
-        for (Integer value : cardsBySign.get(Sign.SPIKE)) {
+        for (Integer value : cardsBySign.get(Sign.SPADE)) {
             score += value;
         }
-        for (Integer value : cardsBySign.get(Sign.CLOVER)) {
+        for (Integer value : cardsBySign.get(Sign.CLUB)) {
             score += value;
         }
-        for (Integer value : cardsBySign.get(Sign.TILE)) {
+        for (Integer value : cardsBySign.get(Sign.DIAMOND)) {
             score -= value;
         }
 
@@ -59,12 +59,12 @@ public class JestScoreVisitor implements CardVisitor {
         }
 
         if (heartCount == 1) score += 4;
-        if (spikeCount == 1) score += 4;
-        if (cloverCount == 1) score += 4;
-        if (tileCount == 1) score += 4;
+        if (spadeCount == 1) score += 4;
+        if (clubCount == 1) score += 4;
+        if (diamondCount == 1) score += 4;
 
-        for (Integer spikeValue : cardsBySign.get(Sign.SPIKE)) {
-            if (cardsBySign.get(Sign.CLOVER).contains(spikeValue)) {
+        for (Integer SPADEValue : cardsBySign.get(Sign.SPADE)) {
+            if (cardsBySign.get(Sign.CLUB).contains(SPADEValue)) {
                 score += 2;
             }
         }

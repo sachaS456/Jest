@@ -3,17 +3,17 @@ import java.util.ArrayList;
 public class SafeStrategy implements IPlayStrategy {
     @Override
     public int makeChoice(int min, int max, ArrayList<Card> cards, boolean isHidingCard) {
-        // if the AI has to hide a card he will try to hide Spades or Clubs
+        // if the AI has to hide a card he will try to hide SPADES or CLUBS
         if(isHidingCard){
-            if(cards.getFirst() instanceof SuitCard && (((SuitCard) cards.getFirst()).getSign() == Sign.SPIKE || ((SuitCard) cards.getFirst()).getSign() == Sign.CLOVER)){
+            if(cards.getFirst() instanceof SuitCard && (((SuitCard) cards.getFirst()).getSign() == Sign.SPADE || ((SuitCard) cards.getFirst()).getSign() == Sign.CLUB)){
                 return 1;
             }else {
                 return 2;
             }
         }else {
-            // if AI has to pick a card he will try to pick Spades or Clubs
+            // if AI has to pick a card he will try to pick SPADES or CLUBS
             for(int i = 0; i < cards.size(); i++){
-                if(cards.get(i) instanceof SuitCard && ((SuitCard) cards.get(i)).isVisible() && (((SuitCard) cards.get(i)).getSign() == Sign.SPIKE || ((SuitCard) cards.get(i)).getSign() == Sign.CLOVER)){
+                if(cards.get(i) instanceof SuitCard && ((SuitCard) cards.get(i)).isVisible() && (((SuitCard) cards.get(i)).getSign() == Sign.SPADE || ((SuitCard) cards.get(i)).getSign() == Sign.CLUB)){
                     return i+1;
                 }
             }

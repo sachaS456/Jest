@@ -515,7 +515,7 @@ public class Game {
                         if(playerVisibleCard.getValue() > highScorePlayerVisibleCard.getValue()){
                             highScorePlayer = player;
                         }else if(playerVisibleCard.getValue() == highScorePlayerVisibleCard.getValue()){
-                            Sign[] cardsSignOrder = {Sign.HEARTH, Sign.TILE, Sign.CLOVER, Sign.SPIKE};
+                            Sign[] cardsSignOrder = {Sign.HEARTH, Sign.DIAMOND, Sign.CLUB, Sign.SPADE};
                             List<Sign> signOrderList = Arrays.asList(cardsSignOrder);
                             int playerCardIndex = signOrderList.indexOf(playerVisibleCard.getSign());
                             int highScorePlayerCardIndex = signOrderList.indexOf(highScorePlayerVisibleCard.getSign());
