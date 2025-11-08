@@ -3,13 +3,55 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
+/**
+ * Represents the main Jest card game engine and orchestrator.
+ * This class manages the entire game flow, from initialization to final scoring,
+ * including player management, card distribution, round execution, and game state persistence.
+ *
+ * <p>Key responsibilities:</p>
+ * <ul>
+ *   <li>Game initialization with player setup and variant selection</li>
+ *   <li>Round management and turn execution</li>
+ *   <li>Card distribution and trophy management</li>
+ *   <li>Score calculation using the Visitor pattern</li>
+ *   <li>Game saving and loading functionality</li>
+ *   <li>Variant-specific rule application</li>
+ * </ul>
+ *
+ * <p>The game supports 3-4 players (human or AI) and can be played with
+ * different variants (Classic, Speed, High Stakes) and optional expansion cards.</p>
+ *
+ * @author Jest Game & Gatien Genevois & Sacha Himber
+ * @version 1.0
+ * @see Player
+ * @see GameVariant
+ * @see GameState
+ * @see Card
+ */
 public class Game {
+    /** The current round number (1-indexed) */
     private int roundNumber;
+    /** The collection of all cards remaining in the deck */
     private ArrayList<Card> cards;
+    /** The array of trophy cards (special high-value cards awarded at game end) */
     private Card[] trophies;
+    /** The list of all players in the game */
     private ArrayList<Player> players;
+    /** The game variant being played (determines scoring and rules) */
     private GameVariant variant;
 
+    /**
+     * Main entry point for the Jest card game application.
+     * Handles the complete game setup flow including:
+     * <ul>
+     *   <li>Save game detection and loading</li>
+     *   <li>Expansion pack selection</li>
+     *   <li>Game variant selection</li>
+     *   <li>Game initialization and execution</li>
+     * </ul>
+     *
+     * @param args command-line arguments (not used)
+     */
     public static void main(String[] args) {
         final String RESET  = "\u001B[0m";
         final String RED    = "\u001B[31m";
@@ -161,6 +203,14 @@ public class Game {
         game.playGame();
     }
 
+    /**
+     * Restores a Game instance from a saved GameState.
+     * Recreates all game components including players, cards, trophies, and variant
+     * to resume a previously saved game.
+     *
+     * @param state the GameState to restore from
+     * @return a fully restored Game instance ready to continue play
+     */
     private static Game restoreGame(GameState state) {
         Game game = new Game(state.isIncludeExpansion());
 
@@ -206,6 +256,12 @@ public class Game {
         return game;
     }
 
+    /**
+     * Converts the trophy cards to a formatted string representation.
+     * Displays each trophy card's details including value, color, sign, and effect code.
+     *
+     * @return a formatted string showing all trophy cards
+     */
     public String trophiesToString(){
         StringBuilder text = new StringBuilder();
         for(Card card : this.trophies) {
@@ -228,6 +284,10 @@ public class Game {
         return text.toString();
     }
 
+    /**
+     * Constructs a new Game with default settings.
+     * Initializes with standard deck, classic variant, and empty player list.
+     */
     public Game() {
         this.roundNumber = 0;
         this.trophies = new  Card[2];
@@ -236,6 +296,11 @@ public class Game {
         this.variant = new ClassicVariant();
     }
 
+    /**
+     * Constructs a new Game with optional expansion cards.
+     *
+     * @param includeExpansion true to include expansion cards, false for standard deck only
+     */
     public Game(boolean includeExpansion) {
         this.roundNumber = 0;
         this.trophies = new Card[2];
@@ -244,6 +309,12 @@ public class Game {
         this.variant = new ClassicVariant();
     }
 
+    /**
+     * Constructs a new Game with expansion selection and specific variant.
+     *
+     * @param includeExpansion true to include expansion cards, false for standard deck only
+     * @param variant the game variant to play (Classic, Speed, or High Stakes)
+     */
     public Game(boolean includeExpansion, GameVariant variant) {
         this.roundNumber = 0;
         this.trophies = new Card[2];
@@ -252,10 +323,21 @@ public class Game {
         this.variant = variant;
     }
 
+    /**
+     * Adds a player to the game.
+     *
+     * @param player the player to add (Human or AI)
+     */
     public void addPlayer(Player player){
         this.players.add(player);
     }
 
+    /**
+     * Awards trophy cards to players based on trophy card effects.
+     * Each trophy card determines its winner through its effect logic,
+     * and the card is added to the winner's jest pile.
+     * Trophy values may be modified by the game variant.
+     */
     public void giveTrophyCard()
     {
         for (Card card : trophies) {
@@ -266,6 +348,17 @@ public class Game {
         }
     }
 
+    /**
+     * Distributes cards to all players at the start of a round.
+     *
+     * <p>Distribution logic:</p>
+     * <ul>
+     *   <li>Round 1: Distributes cards directly from the deck</li>
+     *   <li>Round 2+: Creates a pool from remaining offer cards and new deck cards</li>
+     *   <li>Each player receives 2 cards and chooses which to hide</li>
+     *   <li>Handles insufficient cards gracefully with warnings</li>
+     * </ul>
+     */
     public void distribute()
     {
         ArrayList<Card> distributionPool = new ArrayList<>();
@@ -322,6 +415,19 @@ public class Game {
         }
     }
 
+    /**
+     * Executes a complete game round.
+     *
+     * <p>Round flow:</p>
+     * <ol>
+     *   <li>Increment round number</li>
+     *   <li>Apply variant-specific round start rules</li>
+     *   <li>Distribute cards to all players</li>
+     *   <li>Determine starting player based on visible card values</li>
+     *   <li>Execute player turns until round ends</li>
+     *   <li>Apply variant-specific round end rules</li>
+     * </ol>
+     */
     public void playRound() {
         final String RESET  = "\u001B[0m";
         final String RED    = "\u001B[31m";
@@ -356,18 +462,46 @@ public class Game {
         System.out.println(GREEN + "\nThe round has ended!" + RESET);
     }
 
+    /**
+     * Gets the current round number.
+     *
+     * @return the round number (1-indexed)
+     */
     public int getRoundNumber() {
         return roundNumber;
     }
 
+    /**
+     * Sets the current round number.
+     *
+     * @param roundNumber the round number to set
+     */
     public void setRoundNumber(int roundNumber) {
         this.roundNumber = roundNumber;
     }
 
+    /**
+     * Starts and executes the complete game from beginning to end.
+     * Equivalent to calling {@link #playGame(boolean)} with false.
+     */
     public void playGame() {
         playGame(false);
     }
 
+    /**
+     * Starts or resumes a complete game from beginning to end.
+     *
+     * <p>Game flow:</p>
+     * <ol>
+     *   <li>If not resumed: Set up players and initialize trophies</li>
+     *   <li>Execute rounds until no cards remain</li>
+     *   <li>Offer save game option after each round</li>
+     *   <li>Calculate final scores with trophies</li>
+     *   <li>Determine and announce the winner</li>
+     * </ol>
+     *
+     * @param isResumed true if resuming from a saved game, false for new game
+     */
     public void playGame(boolean isResumed) {
         final String RESET  = "\u001B[0m";
         final String RED    = "\u001B[31m";
@@ -469,6 +603,12 @@ public class Game {
         System.out.println(GREEN + "Thanks for playing Jest! 👏" + RESET);
     }
 
+    /**
+     * Pauses execution for a specified duration.
+     * Used to add delays for better user experience and readability.
+     *
+     * @param millis the number of milliseconds to pause
+     */
     private void sleep(int millis) {
         try {
             Thread.sleep(millis);
@@ -477,6 +617,14 @@ public class Game {
         }
     }
 
+    /**
+     * Prompts for and validates a user choice within a specified range.
+     * Repeatedly asks for input until a valid integer within [min, max] is entered.
+     *
+     * @param min the minimum valid choice value (inclusive)
+     * @param max the maximum valid choice value (inclusive)
+     * @return the validated user choice
+     */
     public int makeChoice(int min, int max) {
         Scanner scanner = new Scanner(System.in);
         int choice;
@@ -496,6 +644,21 @@ public class Game {
         return choice;
     }
 
+    /**
+     * Determines which player should take the next turn based on visible card values.
+     * Players are ordered by their visible card's value, with ties broken by suit priority
+     * (Hearts > Diamonds > Clubs > Spades).
+     *
+     * <p>Selection criteria:</p>
+     * <ul>
+     *   <li>Highest value visible card wins</li>
+     *   <li>Joker cards are excluded from consideration</li>
+     *   <li>Players who have already played this round are excluded</li>
+     *   <li>On equal values, suit order determines priority</li>
+     * </ul>
+     *
+     * @return the player with the highest priority visible card, or null if no valid player exists
+     */
     public Player getPlayersOrder() {
         Player highScorePlayer = null;
         for(Player player : this.players){
@@ -530,38 +693,89 @@ public class Game {
         return highScorePlayer;
     }
 
+    /**
+     * Gets the collection of remaining cards in the deck.
+     *
+     * @return an ArrayList containing all cards not yet distributed or used
+     */
     public ArrayList<Card> getCards() {
         return cards;
     }
 
+    /**
+     * Sets the collection of cards in the deck.
+     *
+     * @param cards the new card collection to set
+     */
     public void setCards(ArrayList<Card> cards) {
         this.cards = cards;
     }
 
+    /**
+     * Gets the array of trophy cards.
+     *
+     * @return an array containing the trophy cards for this game
+     */
     public Card[] getTrophies() {
         return trophies;
     }
 
+    /**
+     * Sets the trophy cards for the game.
+     *
+     * @param trophies the array of trophy cards to set
+     */
     public void setTrophies(Card[] trophies) {
         this.trophies = trophies;
     }
 
+    /**
+     * Gets the list of all players in the game.
+     *
+     * @return an ArrayList containing all players
+     */
     public ArrayList<Player> getPlayers() {
         return players;
     }
 
+    /**
+     * Sets the list of players for the game.
+     *
+     * @param players the ArrayList of players to set
+     */
     public void setPlayers(ArrayList<Player> players) {
         this.players = players;
     }
 
+    /**
+     * Gets the current game variant.
+     *
+     * @return the GameVariant being played
+     */
     public GameVariant getVariant() {
         return variant;
     }
 
+    /**
+     * Sets the game variant.
+     *
+     * @param variant the GameVariant to set
+     */
     public void setVariant(GameVariant variant) {
         this.variant = variant;
     }
 
+    /**
+     * Calculates the base Jest points for a player using the Visitor pattern.
+     * This method traverses all cards in the player's jest pile and applies
+     * the Jest scoring rules through the JestScoreVisitor.
+     *
+     * <p>Note: This returns the base score before variant multipliers are applied.</p>
+     *
+     * @param player the player whose points are being calculated
+     * @return the base Jest score for the player's jest pile
+     * @see JestScoreVisitor
+     */
     public static int getJestPoints(Player player) {
         JestScoreVisitor scoreVisitor = new JestScoreVisitor();
 
@@ -574,6 +788,16 @@ public class Game {
         return scoreVisitor.getScore();
     }
 
+    /**
+     * Randomly selects and sets the trophy cards for the game.
+     * Removes the selected cards from the deck.
+     *
+     * <p>Trophy selection:</p>
+     * <ul>
+     *   <li>Always selects 1 trophy card</li>
+     *   <li>Selects a 2nd trophy if 3 or fewer players</li>
+     * </ul>
+     */
     public void setTrophies(){
         int random = (int) (((this.cards.size()-1) * Math.random()));
         this.trophies[0] = this.cards.remove(random);
@@ -584,6 +808,12 @@ public class Game {
         }
     }
 
+    /**
+     * Gets the list of players who have completed their turn in the current round.
+     * A player is considered to have played if their jest pile size equals the round number.
+     *
+     * @return an ArrayList of players who have already played this round
+     */
     public ArrayList<Player> getPlayersThatHavePlayedThisRound()
     {
         ArrayList<Player> playersThatHavePlayed = new ArrayList<>();
@@ -595,6 +825,12 @@ public class Game {
         return playersThatHavePlayed;
     }
 
+    /**
+     * Counts how many players currently have both a visible and hidden card in their offer.
+     * Used to determine if the round should continue or end.
+     *
+     * @return the number of players with complete offers (2 cards)
+     */
     public int countPlayersWithFullOffer(){
         int  count = 0;
         for(Player player : this.getPlayers()){
