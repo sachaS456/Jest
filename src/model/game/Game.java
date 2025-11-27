@@ -219,7 +219,7 @@ public class Game {
      * @param state the GameState to restore from
      * @return a fully restored Game instance ready to continue play
      */
-    private static Game restoreGame(GameState state) {
+    public static Game restoreGame(GameState state) {
         Game game = new Game(state.isIncludeExpansion());
 
         game.setRoundNumber(state.getRoundNumber());
