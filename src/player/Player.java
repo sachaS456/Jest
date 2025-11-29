@@ -348,7 +348,14 @@ public abstract class Player {
         }
 
         System.out.print(BLUE + "-> " + RESET);
-        int cardToPick = this.makeChoice(1, possibleCardsToPick.size(), possibleCardsToPick, false);
+        int cardToPick;
+
+        // Pass card owners to HumanUIPlayer if applicable
+        if (this instanceof HumanUIPlayer) {
+            cardToPick = ((HumanUIPlayer) this).makeChoice(1, possibleCardsToPick.size(), possibleCardsToPick, cardOwners, false);
+        } else {
+            cardToPick = this.makeChoice(1, possibleCardsToPick.size(), possibleCardsToPick, false);
+        }
 
         if (cardToPick < 1 || cardToPick > possibleCardsToPick.size()) {
             return null;

@@ -212,9 +212,8 @@ public class GameWindow {
         buttonBox.setStyle("-fx-background-color: #0a0a0a; -fx-border-color: #FFD700; -fx-border-width: 2 0 0 0;");
 
         Button confirmButton = createStyledButton("✅ Confirm", 140, 35);
-        Button cancelButton = createStyledButton("❌ Cancel", 140, 35);
 
-        buttonBox.getChildren().addAll(confirmButton, cancelButton);
+        buttonBox.getChildren().add(confirmButton);
 
         root.setTop(titleBox);
         root.setCenter(formBox);
@@ -249,8 +248,6 @@ public class GameWindow {
             }
         });
 
-        // Handle cancel
-        cancelButton.setOnAction(e -> setupStage.close());
 
         // Enter key press dans le TextField
         nameField.setOnKeyPressed(event -> {

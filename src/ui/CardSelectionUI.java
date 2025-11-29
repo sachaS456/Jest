@@ -15,6 +15,8 @@ import javafx.stage.Stage;
 import model.cards.Card;
 import model.cards.SuitCard;
 import model.cards.JokerCard;
+import player.Player;
+import player.AI;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -49,11 +51,23 @@ public class CardSelectionUI {
      * @return the index of the selected card (1-indexed)
      */
     public int showCardSelection(ArrayList<Card> cards, String description) {
+        return showCardSelection(cards, null, description);
+    }
+
+    /**
+     * Shows a card selection dialog with card owners.
+     *
+     * @param cards the list of cards to choose from
+     * @param cardOwners the list of card owners (parallel to cards)
+     * @param description description of what the player should choose
+     * @return the index of the selected card (1-indexed)
+     */
+    public int showCardSelection(ArrayList<Card> cards, ArrayList<Player> cardOwners, String description) {
         selectedCard.set(-1);
         cardSelected = false;
 
         Platform.runLater(() -> {
-            showSelectionScene(cards, description);
+            showSelectionScene(cards, cardOwners, description);
         });
 
         // Wait for user selection
@@ -72,9 +86,10 @@ public class CardSelectionUI {
      * Creates and displays the card selection scene.
      *
      * @param cards the list of cards to choose from
+     * @param cardOwners the list of card owners (can be null)
      * @param description the description of the choice
      */
-    private void showSelectionScene(ArrayList<Card> cards, String description) {
+    private void showSelectionScene(ArrayList<Card> cards, ArrayList<Player> cardOwners, String description) {
         BorderPane root = new BorderPane();
         root.setStyle("-fx-background-color: #1e1e1e;");
 
@@ -110,7 +125,8 @@ public class CardSelectionUI {
             Card card = cards.get(i);
             if (card == null) continue;
 
-            Button cardButton = createCardButton(card, index);
+            Player owner = (cardOwners != null && i < cardOwners.size()) ? cardOwners.get(i) : null;
+            Button cardButton = createCardButton(card, index, owner);
             cardButton.setOnAction(e -> {
                 selectedCard.set(index);
                 cardSelected = true;
@@ -134,23 +150,43 @@ public class CardSelectionUI {
     }
 
     /**
-     * Creates a visual button for a card.
+     * Legacy method - kept for compatibility
+     */
+    private void showSelectionScene(ArrayList<Card> cards, String description) {
+        showSelectionScene(cards, null, description);
+    }
+
+    /**
+     * Creates a visual button for a card with owner info.
      *
      * @param card the card to display
      * @param index the index of the card
+     * @param owner the owner of the card (can be null)
      * @return a styled button
      */
-    private Button createCardButton(Card card, int index) {
-        String cardText = formatCard(card) + "\n#" + index;
+    private Button createCardButton(Card card, int index, Player owner) {
+        String cardText = formatCard(card);
+        if (owner != null) {
+            String ownerType = owner instanceof AI ? "🤖" : "👤";
+            cardText += "\n(" + ownerType + " " + owner.getName() + ")";
+        }
+
         Button button = new Button(cardText);
-        button.setPrefWidth(120);
-        button.setPrefHeight(160);
-        button.setFont(Font.font("Arial", 11));
+        button.setPrefWidth(140);
+        button.setPrefHeight(180);
+        button.setFont(Font.font("Arial", 10));
         button.setStyle("-fx-padding: 10; -fx-background-color: #3366CC; " +
                 "-fx-text-fill: #FFFFFF; -fx-border-radius: 5; -fx-cursor: hand; " +
                 "-fx-border-color: #FFFF00; -fx-border-width: 2;");
         button.setWrapText(true);
         return button;
+    }
+
+    /**
+     * Legacy method - kept for compatibility
+     */
+    private Button createCardButton(Card card, int index) {
+        return createCardButton(card, index, null);
     }
 
     /**
