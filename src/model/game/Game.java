@@ -357,7 +357,7 @@ public class Game {
     }
 
     /**
-     * Distributes cards to all players at the start of a round.
+     * Distributes cards to all players for a new round.
      *
      * <p>Distribution logic:</p>
      * <ul>
@@ -369,6 +369,11 @@ public class Game {
      */
     public void distribute()
     {
+        // Reset isVisible to true for all cards at the start of each round
+        for (Card card : this.cards) {
+            card.setVisible(true);
+        }
+
         ArrayList<Card> distributionPool = new ArrayList<>();
         if(this.roundNumber > 1){
             ArrayList<Card> gameCards = new ArrayList<>();
@@ -382,6 +387,8 @@ public class Game {
             for(Player player : this.players){
                 Card removedCard = player.removeLastCardFromOffer();
                 if(removedCard != null) {
+                    // Reset isVisible for cards from previous round
+                    removedCard.setVisible(true);
                     playerCards.add(removedCard);
                 }
             }
@@ -735,6 +742,15 @@ public class Game {
      */
     public void setTrophies(Card[] trophies) {
         this.trophies = trophies;
+    }
+
+    /**
+     * Gets the trophy cards array.
+     *
+     * @return the array of trophy cards
+     */
+    public Card[] getTrophyCards() {
+        return trophies;
     }
 
     /**

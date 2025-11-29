@@ -158,15 +158,24 @@ public abstract class Player {
 
     /**
      * Sets the hidden card in the player's offer (index 1).
-     * The card's visibility is automatically set to false.
+     * The card's visibility is NOT automatically set to false here - it will be hidden after display.
      *
      * @param hiddenCard the card to be hidden from other players
      */
     public void setHiddenCard(Card hiddenCard) {
-        if(hiddenCard != null) {
-            hiddenCard.setVisible(false);
-        }
         this.offer[1] = hiddenCard;
+    }
+
+    /**
+     * Hides a card by setting its visibility to false.
+     * This should be called after the card has been displayed to the player.
+     *
+     * @param card the card to hide
+     */
+    public void hideCard(Card card) {
+        if (card != null) {
+            card.setVisible(false);
+        }
     }
 
     /**
@@ -448,9 +457,11 @@ public abstract class Player {
         if (cardToHide == 1) {
             this.setHiddenCard(card1);
             this.setVisibleCard(card2);
+            this.hideCard(card1);  // Mark card as hidden after choice
         } else {
             this.setHiddenCard(card2);
             this.setVisibleCard(card1);
+            this.hideCard(card2);  // Mark card as hidden after choice
         }
 
         System.out.println(GREEN + "You chose to hide card " + cardToHide + "." + RESET);
