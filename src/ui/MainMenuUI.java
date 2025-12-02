@@ -13,6 +13,9 @@ import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import model.game.Game;
 import util.GameSaver;
+import player.Player;
+import player.Human;
+import player.HumanUIPlayer;
 
 /**
  * Main GUI entry point for the Jest card game.
@@ -36,6 +39,11 @@ public class MainMenuUI extends Application {
         primaryStage.setWidth(800);
         primaryStage.setHeight(600);
         primaryStage.setResizable(true);
+
+        // Fermer l'application complètement quand on ferme la fenêtre
+        primaryStage.setOnCloseRequest(e -> {
+            System.exit(0);
+        });
 
         showMainMenu();
         primaryStage.show();
@@ -253,6 +261,23 @@ public class MainMenuUI extends Application {
         model.game.GameState loadedState = GameSaver.loadGame(saveName);
         if (loadedState != null) {
             Game game = Game.restoreGame(loadedState);
+
+            // Convertir les joueurs humains en HumanUIPlayer pour la GUI
+            java.util.ArrayList<player.Player> updatedPlayers = new java.util.ArrayList<>();
+            for (player.Player p : game.getPlayers()) {
+                if (p instanceof player.Human && !(p instanceof player.HumanUIPlayer)) {
+                    // Convertir Human en HumanUIPlayer
+                    player.HumanUIPlayer uiPlayer = new player.HumanUIPlayer(p.getName(), primaryStage);
+                    // Copier l'état du joueur
+                    uiPlayer.setJest(p.getJest());
+                    uiPlayer.setOffer(p.getVisibleCard(), p.getHiddenCard());
+                    updatedPlayers.add(uiPlayer);
+                } else {
+                    updatedPlayers.add(p);
+                }
+            }
+            game.setPlayers(updatedPlayers);
+
             GameWindow gameWindow = new GameWindow(game, primaryStage, true);
             gameWindow.show();
         } else {

@@ -49,6 +49,7 @@ public class GameWindow {
     private Label statusLabel;
     private VBox playerListBox;
     private volatile boolean roundContinue = false;  // Signal pour continuer après un round
+    private volatile boolean shouldQuit = false;     // Signal pour quitter l'application
 
     /**
      * Constructs a GameWindow for a new game.
@@ -338,7 +339,7 @@ public class GameWindow {
             game.setTrophies();
         }
 
-        while (!game.getCards().isEmpty()) {
+        while (!game.getCards().isEmpty() && !shouldQuit) {
             playRoundWithUI();
 
             // Afficher le menu de fin de round et attendre que l'utilisateur clique sur Continue
@@ -347,14 +348,19 @@ public class GameWindow {
                 showRoundEndMenu();
             });
 
-            // Attendre que l'utilisateur clique sur le bouton Continue
-            while (!roundContinue) {
+            // Attendre que l'utilisateur clique sur le bouton Continue ou Quit
+            while (!roundContinue && !shouldQuit) {
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
             }
+        }
+
+        // Si l'utilisateur a choisi de quitter, retourner sans continuer
+        if (shouldQuit) {
+            return;
         }
 
         // Reveal final cards and trophies
@@ -774,7 +780,24 @@ public class GameWindow {
             roundContinue = true;
         });
 
-        buttonBox.getChildren().addAll(saveButton, continueButton);
+        Button quitButton = createStyledButton("❌ Quit", 180, 50);
+        quitButton.setOnAction(e -> {
+            Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
+            confirmAlert.setTitle("Confirm Quit");
+            confirmAlert.setHeaderText("Are you sure you want to quit?");
+            confirmAlert.setContentText("The game will be closed without saving.");
+
+            Optional<javafx.scene.control.ButtonType> result = confirmAlert.showAndWait();
+            if (result.isPresent() && result.get() == javafx.scene.control.ButtonType.OK) {
+                shouldQuit = true;
+                roundContinue = true;  // Signal pour sortir des boucles
+                javafx.application.Platform.runLater(() -> {
+                    primaryStage.close();
+                });
+            }
+        });
+
+        buttonBox.getChildren().addAll(saveButton, continueButton, quitButton);
         contentBox.getChildren().add(buttonBox);
 
         root.setTop(titleBox);
