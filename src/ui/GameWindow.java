@@ -48,6 +48,7 @@ public class GameWindow {
     private int currentPlayerSetupIndex;
     private Label statusLabel;
     private VBox playerListBox;
+    private volatile boolean roundContinue = false;  // Signal pour continuer après un round
 
     /**
      * Constructs a GameWindow for a new game.
@@ -340,14 +341,19 @@ public class GameWindow {
         while (!game.getCards().isEmpty()) {
             playRoundWithUI();
 
+            // Afficher le menu de fin de round et attendre que l'utilisateur clique sur Continue
+            roundContinue = false;
             javafx.application.Platform.runLater(() -> {
                 showRoundEndMenu();
             });
 
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
+            // Attendre que l'utilisateur clique sur le bouton Continue
+            while (!roundContinue) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
             }
         }
 
@@ -694,7 +700,7 @@ public class GameWindow {
     }
 
     /**
-     * Shows the end of round menu with save option.
+     * Shows the end of round menu with save and continue options.
      */
     private void showRoundEndMenu() {
         BorderPane root = new BorderPane();
@@ -719,6 +725,8 @@ public class GameWindow {
         scoreLabel.setStyle("-fx-text-fill: #FFFF00; -fx-font-size: 14; -fx-font-weight: bold;");
 
         VBox scoresBox = new VBox(5);
+        boolean includeExpansion = game.getCards().size() > model.cards.CardDeckFactory.getStandardDeckSize();
+
         for (player.Player p : game.getPlayers()) {
             int points = game.getVariant().calculatePoints(p);
             Label playerScore = new Label("  " + p.getName() + ": " + points + " pts");
@@ -726,10 +734,48 @@ public class GameWindow {
             scoresBox.getChildren().add(playerScore);
         }
 
-        Label continueLabel = new Label("Game will continue automatically...");
-        continueLabel.setStyle("-fx-text-fill: #FFFFFF; -fx-font-size: 12; -fx-font-style: italic;");
+        contentBox.getChildren().addAll(infoLabel, scoreLabel, scoresBox);
 
-        contentBox.getChildren().addAll(infoLabel, scoreLabel, scoresBox, continueLabel);
+        // Boutons
+        HBox buttonBox = new HBox(20);
+        buttonBox.setAlignment(Pos.CENTER);
+        buttonBox.setPadding(new Insets(20));
+
+        Button saveButton = createStyledButton("💾 Save Game", 180, 50);
+        saveButton.setOnAction(e -> {
+            // Dialog pour le nom de la sauvegarde
+            TextInputDialog dialog = new TextInputDialog("");
+            dialog.setTitle("Save Game");
+            dialog.setHeaderText("Enter a name for this save:");
+            dialog.setContentText("Name (optional):");
+            dialog.getDialogPane().setStyle("-fx-background-color: #1e1e1e; -fx-text-fill: #FFFFFF;");
+
+            Optional<String> result = dialog.showAndWait();
+            if (result.isPresent()) {
+                String saveName = result.get().trim();
+                if (GameSaver.saveGame(game, includeExpansion, saveName.isEmpty() ? null : saveName)) {
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Success");
+                    alert.setHeaderText("Game saved!");
+                    alert.setContentText("Your game has been saved successfully.");
+                    alert.showAndWait();
+                } else {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Error");
+                    alert.setHeaderText("Save failed");
+                    alert.setContentText("Failed to save the game.");
+                    alert.showAndWait();
+                }
+            }
+        });
+
+        Button continueButton = createStyledButton("▶ Continue", 180, 50);
+        continueButton.setOnAction(e -> {
+            roundContinue = true;
+        });
+
+        buttonBox.getChildren().addAll(saveButton, continueButton);
+        contentBox.getChildren().add(buttonBox);
 
         root.setTop(titleBox);
         root.setCenter(contentBox);
