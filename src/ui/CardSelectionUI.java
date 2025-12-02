@@ -12,13 +12,18 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 import model.cards.Card;
 import model.cards.SuitCard;
 import model.cards.JokerCard;
+import model.enums.Sign;
 import player.Player;
 import player.AI;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.io.File;
 
 /**
  * CardSelectionUI handles the graphical display and selection of cards during gameplay.
@@ -157,7 +162,9 @@ public class CardSelectionUI {
     }
 
     /**
-     * Creates a visual button for a card with owner info.
+     * Creates a visual button for a card with owner info and image display.
+     * For visible cards: displays only the image
+     * For hidden cards: displays "Hidden" in orange text on colored background
      *
      * @param card the card to display
      * @param index the index of the card
@@ -165,11 +172,44 @@ public class CardSelectionUI {
      * @return a styled button
      */
     private Button createCardButton(Card card, int index, Player owner) {
-        String cardText = formatCard(card);
-        if (owner != null) {
-            String ownerType = owner instanceof AI ? "🤖" : "👤";
-            cardText += "\n(" + ownerType + " " + owner.getName() + ")";
+        Button button = new Button();
+        // Dimensions exactes des images: 60x90
+        button.setPrefWidth(60);
+        button.setPrefHeight(90);
+        button.setMinWidth(60);
+        button.setMinHeight(90);
+        button.setMaxWidth(60);
+        button.setMaxHeight(90);
+
+        if (card.isVisible()) {
+            // Pour les cartes visibles: afficher UNIQUEMENT l'image
+            button.setStyle("-fx-padding: 0; -fx-background-color: transparent; " +
+                    "-fx-border-color: transparent; -fx-cursor: hand;");
+            ImageView cardImageView = getCardImageView(card);
+            button.setGraphic(cardImageView);
+        } else {
+            // Pour les cartes cachées: afficher "Hidden" en orange sur fond coloré
+            button.setStyle("-fx-padding: 0; -fx-background-color: #1a1a2e; " +
+                    "-fx-border-color: #FF6600; -fx-border-width: 2; -fx-cursor: hand;");
+            Label hiddenLabel = new Label("🫣\nHidden");
+            hiddenLabel.setStyle("-fx-text-fill: #FF6600; -fx-font-size: 12; " +
+                    "-fx-font-weight: bold; -fx-text-alignment: center;");
+            hiddenLabel.setWrapText(true);
+            button.setGraphic(hiddenLabel);
         }
+
+        return button;
+    }
+
+    /**
+     * Creates a legacy text-based button (kept for compatibility).
+     *
+     * @param card the card to display
+     * @param index the index of the card
+     * @return a styled button
+     */
+    private Button createLegacyCardButton(Card card, int index) {
+        String cardText = formatCard(card);
 
         Button button = new Button(cardText);
         button.setPrefWidth(140);
@@ -180,6 +220,99 @@ public class CardSelectionUI {
                 "-fx-border-color: #FFFF00; -fx-border-width: 2;");
         button.setWrapText(true);
         return button;
+    }
+
+    /**
+     * Charge l'image d'une carte et la retourne comme ImageView.
+     *
+     * @param card la carte dont charger l'image
+     * @return un ImageView contenant l'image de la carte
+     */
+    private ImageView getCardImageView(Card card) {
+        Image img = null;
+
+        try {
+            String imagePath = null;
+
+            if (card instanceof SuitCard) {
+                SuitCard suitCard = (SuitCard) card;
+                int value = suitCard.getValue();
+                String color = suitCard.getColor().toString().toLowerCase();
+                String sign = convertSignToImageName(suitCard.getSign());
+
+                imagePath = "Assets/Images/" + value + "_" + color + "_" + sign + ".png";
+            } else if (card instanceof JokerCard) {
+                imagePath = "Assets/Images/joker.png";
+            }
+
+            if (imagePath != null) {
+                File imageFile = new File(imagePath);
+                if (imageFile.exists()) {
+                    img = new Image("file:///" + imageFile.getAbsolutePath().replace("\\", "/"),
+                                    60, 90, true, true);
+                } else {
+                    System.err.println("Image non trouvée: " + imageFile.getAbsolutePath());
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Erreur lors du chargement de l'image: " + e.getMessage());
+            img = null;
+        }
+
+        // Fallback si l'image n'est pas trouvée
+        if (img == null || img.isError()) {
+            try {
+                File jokerFile = new File("Assets/Images/joker.png");
+                if (jokerFile.exists()) {
+                    img = new Image("file:///" + jokerFile.getAbsolutePath().replace("\\", "/"),
+                                    60, 90, true, true);
+                } else {
+                    img = createPlaceholderImage();
+                }
+            } catch (Exception e) {
+                img = createPlaceholderImage();
+            }
+        }
+
+        ImageView iv = new ImageView(img);
+        iv.setFitWidth(60);
+        iv.setFitHeight(90);
+        iv.setPreserveRatio(false);
+        return iv;
+    }
+
+    /**
+     * Convertit un énumérateur Sign en nom de fichier image.
+     *
+     * @param sign le signe à convertir
+     * @return le nom du signe pour le fichier image
+     */
+    private String convertSignToImageName(Sign sign) {
+        switch (sign) {
+            case SPADE: return "spade";
+            case CLUB: return "club";
+            case DIAMOND: return "diamond";
+            case HEARTH: return "heart";
+            default: return "spade";
+        }
+    }
+
+    /**
+     * Crée une image placeholder si l'image réelle n'est pas trouvée.
+     *
+     * @return une Image placeholder
+     */
+    private Image createPlaceholderImage() {
+        javafx.scene.image.WritableImage placeholder = new javafx.scene.image.WritableImage(60, 90);
+        javafx.scene.image.PixelWriter writer = placeholder.getPixelWriter();
+        javafx.scene.paint.Color fillColor = javafx.scene.paint.Color.web("#666666");
+
+        for (int y = 0; y < 90; y++) {
+            for (int x = 0; x < 60; x++) {
+                writer.setColor(x, y, fillColor);
+            }
+        }
+        return placeholder;
     }
 
     /**

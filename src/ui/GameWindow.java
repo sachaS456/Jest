@@ -17,15 +17,22 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.Node;
 import model.game.Game;
 import model.game.GameState;
+import model.enums.Sign;
 import player.AI;
 import player.Human;
 import player.Player;
 import util.GameSaver;
 import variant.GameVariant;
+import model.cards.SuitCard;
+import model.cards.JokerCard;
 
 import java.util.Optional;
+import java.io.File;
 
 /**
  * Game window for managing player setup and game execution via GUI.
@@ -493,13 +500,19 @@ public class GameWindow {
                 opponentNameLabel.setStyle("-fx-text-fill: #00FF00; -fx-font-weight: bold;");
 
                 if (opponent.getVisibleCard() != null && opponent.getHiddenCard() != null) {
-                    Label visibleLabel = new Label("📍 Visible: " + formatCard(opponent.getVisibleCard()));
-                    visibleLabel.setStyle("-fx-text-fill: #00FFFF;");
+                    VBox cardBox = new VBox(5);
+                    cardBox.setAlignment(Pos.CENTER);
 
-                    Label hiddenLabel = new Label("🫣 Hidden");
-                    hiddenLabel.setStyle("-fx-text-fill: #FF6600;");
+                    Label visibleLabel = new Label("📍 Visible Card:");
+                    visibleLabel.setStyle("-fx-text-fill: #00FFFF; -fx-font-weight: bold;");
 
-                    opponentBox.getChildren().addAll(opponentNameLabel, visibleLabel, hiddenLabel);
+                    Node visibleCardNode = formatCardNode(opponent.getVisibleCard());
+
+                    Label hiddenLabel = new Label("🫣 Hidden Card");
+                    hiddenLabel.setStyle("-fx-text-fill: #FF6600; -fx-font-weight: bold;");
+
+                    cardBox.getChildren().addAll(visibleLabel, visibleCardNode, hiddenLabel);
+                    opponentBox.getChildren().addAll(opponentNameLabel, cardBox);
                 } else {
                     Label noOfferLabel = new Label("(No offer)");
                     noOfferLabel.setStyle("-fx-text-fill: #CCCCCC;");
@@ -523,7 +536,142 @@ public class GameWindow {
     }
 
     /**
+     * Charge l'image d'une carte et la retourne comme ImageView.
+     *
+     * @param card la carte dont charger l'image
+     * @return un ImageView contenant l'image de la carte
+     */
+    private ImageView getCardImageView(model.cards.Card card) {
+        Image img = null;
+
+        try {
+            String imagePath = null;
+
+            if (card instanceof SuitCard) {
+                SuitCard suitCard = (SuitCard) card;
+                int value = suitCard.getValue();
+                String color = suitCard.getColor().toString().toLowerCase(); // "red" ou "black"
+                String sign = convertSignToImageName(suitCard.getSign());
+
+                // Format du nom de fichier: {value}_{color}_{sign}.png
+                // Exemple: 1_red_heart.png, 2_black_spade.png
+                imagePath = "Assets/Images/" + value + "_" + color + "_" + sign + ".png";
+            } else if (card instanceof JokerCard) {
+                imagePath = "Assets/Images/joker.png";
+            }
+
+            if (imagePath != null) {
+                // Essayer d'abord avec file: URL
+                java.io.File imageFile = new java.io.File(imagePath);
+                if (imageFile.exists()) {
+                    img = new Image("file:///" + imageFile.getAbsolutePath().replace("\\", "/"),
+                                    80, 120, true, true);
+                } else {
+                    System.err.println("Image non trouvée: " + imageFile.getAbsolutePath());
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Erreur lors du chargement de l'image: " + e.getMessage());
+            e.printStackTrace();
+            img = null;
+        }
+
+        // Fallback si l'image n'est pas trouvée
+        if (img == null || img.isError()) {
+            try {
+                java.io.File jokerFile = new java.io.File("Assets/Images/joker.png");
+                if (jokerFile.exists()) {
+                    img = new Image("file:///" + jokerFile.getAbsolutePath().replace("\\", "/"),
+                                    80, 120, true, true);
+                } else {
+                    img = createPlaceholderImage();
+                }
+            } catch (Exception e) {
+                img = createPlaceholderImage();
+            }
+        }
+
+        ImageView iv = new ImageView(img);
+        iv.setFitWidth(80);
+        iv.setFitHeight(120);
+        iv.setPreserveRatio(false);
+        return iv;
+    }
+
+    /**
+     * Convertit un énumérateur Sign en nom de fichier image.
+     *
+     * @param sign le signe à convertir
+     * @return le nom du signe pour le fichier image
+     */
+    private String convertSignToImageName(Sign sign) {
+        switch (sign) {
+            case SPADE: return "spade";
+            case CLUB: return "club";
+            case DIAMOND: return "diamond";
+            case HEARTH: return "heart";
+            default: return "spade";
+        }
+    }
+
+    /**
+     * Crée une image placeholder si l'image réelle n'est pas trouvée.
+     *
+     * @return une Image placeholder
+     */
+    private Image createPlaceholderImage() {
+        javafx.scene.image.WritableImage placeholder = new javafx.scene.image.WritableImage(80, 120);
+        javafx.scene.image.PixelWriter writer = placeholder.getPixelWriter();
+        javafx.scene.paint.Color fillColor = javafx.scene.paint.Color.web("#CCCCCC");
+
+        for (int y = 0; y < 120; y++) {
+            for (int x = 0; x < 80; x++) {
+                writer.setColor(x, y, fillColor);
+            }
+        }
+        return placeholder;
+    }
+
+    /**
+     * Formate une carte en Node avec image pour l'affichage.
+     *
+     * @param card la carte à formater
+     * @return un Node contenant l'image et les informations de la carte
+     */
+    private Node formatCardNode(model.cards.Card card) {
+        if (card == null) {
+            Label label = new Label("(No card)");
+            label.setStyle("-fx-text-fill: #CCCCCC;");
+            return label;
+        }
+
+        if (!card.isVisible()) {
+            Label label = new Label("🫣 Hidden");
+            label.setStyle("-fx-text-fill: #FF6600;");
+            return label;
+        }
+
+        HBox cardBox = new HBox(8);
+        cardBox.setAlignment(Pos.CENTER);
+
+        ImageView iv = getCardImageView(card);
+
+        Label infoLabel = new Label();
+        if (card instanceof SuitCard) {
+            SuitCard suitCard = (SuitCard) card;
+            infoLabel.setText(suitCard.getValue() + " " + suitCard.getSign().toString());
+        } else if (card instanceof JokerCard) {
+            infoLabel.setText("Joker");
+        }
+        infoLabel.setStyle("-fx-text-fill: #00FFFF; -fx-font-size: 12;");
+
+        cardBox.getChildren().addAll(iv, infoLabel);
+        return cardBox;
+    }
+
+    /**
      * Formats a card for display.
+     * Cette méthode est conservée pour compatibilité avec les anciennes versions.
      *
      * @param card the card to format
      * @return a formatted string representation
