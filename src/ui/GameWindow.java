@@ -549,6 +549,7 @@ public class GameWindow {
 
     /**
      * Charge l'image d'une carte et la retourne comme ImageView.
+     * Prend en compte les cartes d'extension avec des effets spéciaux.
      *
      * @param card la carte dont charger l'image
      * @return un ImageView contenant l'image de la carte
@@ -565,11 +566,33 @@ public class GameWindow {
                 String color = suitCard.getColor().toString().toLowerCase(); // "red" ou "black"
                 String sign = convertSignToImageName(suitCard.getSign());
 
-                // Format du nom de fichier: {value}_{color}_{sign}.png
-                // Exemple: 1_red_heart.png, 2_black_spade.png
-                imagePath = "Assets/Images/" + value + "_" + color + "_" + sign + ".png";
+                // Construction du nom de fichier de base
+                String baseImageName = value + "_" + color + "_" + sign;
+
+                // Vérifier si c'est une carte d'extension avec un effet spécial
+                String specialSuffix = getSpecialCardSuffix(suitCard);
+                if (specialSuffix != null) {
+                    // Essayer d'abord avec le suffixe spécial
+                    imagePath = "Assets/Images/" + baseImageName + specialSuffix + ".png";
+                    java.io.File specialFile = new java.io.File(imagePath);
+                    if (!specialFile.exists()) {
+                        // Sinon utiliser l'image de base
+                        imagePath = "Assets/Images/" + baseImageName + ".png";
+                    }
+                } else {
+                    imagePath = "Assets/Images/" + baseImageName + ".png";
+                }
             } else if (card instanceof JokerCard) {
-                imagePath = "Assets/Images/joker.png";
+                // Vérifier si c'est le Joker d'extension (MOST_CARDS)
+                JokerCard jokerCard = (JokerCard) card;
+                String jokerImagePath = "Assets/Images/joker_most_cards.png";
+                java.io.File jokerSpecialFile = new java.io.File(jokerImagePath);
+
+                if (jokerCard.getCardEffectCode().equals("MOST_CARDS") && jokerSpecialFile.exists()) {
+                    imagePath = jokerImagePath;
+                } else {
+                    imagePath = "Assets/Images/joker.png";
+                }
             }
 
             if (imagePath != null) {
@@ -608,6 +631,42 @@ public class GameWindow {
         iv.setFitHeight(120);
         iv.setPreserveRatio(false);
         return iv;
+    }
+
+    /**
+     * Retourne le suffixe spécial pour les cartes d'extension.
+     *
+     * @param suitCard la carte à vérifier
+     * @return le suffixe à ajouter au nom de fichier, ou null si pas de suffixe spécial
+     */
+    private String getSpecialCardSuffix(SuitCard suitCard) {
+        String effect = suitCard.getCardEffectCode();
+        int value = suitCard.getValue();
+        Sign sign = suitCard.getSign();
+
+        // Cartes d'extension avec images spéciales
+        // 1_black_club_most_cards.png
+        if (value == 1 && sign == Sign.CLUB && effect.equals("MOST_CARDS")) {
+            return "_most_cards";
+        }
+        // 2_black_club_least_cards.png
+        if (value == 2 && sign == Sign.CLUB && effect.equals("LEAST_CARDS")) {
+            return "_least_cards";
+        }
+        // 3_red_heart_even.png
+        if (value == 3 && sign == Sign.HEARTH && effect.equals("EVEN_VALUES")) {
+            return "_even";
+        }
+        // 4_red_heart_odd.png
+        if (value == 4 && sign == Sign.HEARTH && effect.equals("ODD_VALUES")) {
+            return "_odd";
+        }
+        // 1_black_spade_no_duplicates.png
+        if (value == 1 && sign == Sign.SPADE && effect.equals("NO_DUPLICATES")) {
+            return "_no_duplicates";
+        }
+
+        return null;
     }
 
     /**
