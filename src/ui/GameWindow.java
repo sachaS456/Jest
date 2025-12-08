@@ -704,6 +704,35 @@ public class GameWindow {
     }
 
     /**
+     * Charge l'image du dos de carte (back.png) pour les cartes cachées.
+     *
+     * @return un ImageView contenant l'image du dos de carte
+     */
+    private ImageView getBackImageView() {
+        Image img = null;
+
+        try {
+            java.io.File backFile = new java.io.File("Assets/Images/back.png");
+            if (backFile.exists()) {
+                img = new Image("file:///" + backFile.getAbsolutePath().replace("\\", "/"),
+                                80, 120, true, true);
+            } else {
+                System.err.println("Image back.png non trouvée: " + backFile.getAbsolutePath());
+                img = createPlaceholderImage();
+            }
+        } catch (Exception e) {
+            System.err.println("Erreur lors du chargement de back.png: " + e.getMessage());
+            img = createPlaceholderImage();
+        }
+
+        ImageView iv = new ImageView(img);
+        iv.setFitWidth(80);
+        iv.setFitHeight(120);
+        iv.setPreserveRatio(false);
+        return iv;
+    }
+
+    /**
      * Formate une carte en Node avec image pour l'affichage.
      *
      * @param card la carte à formater

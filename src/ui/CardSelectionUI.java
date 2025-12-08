@@ -188,14 +188,11 @@ public class CardSelectionUI {
             ImageView cardImageView = getCardImageView(card);
             button.setGraphic(cardImageView);
         } else {
-            // Pour les cartes cachées: afficher "Hidden" en orange sur fond coloré
-            button.setStyle("-fx-padding: 0; -fx-background-color: #1a1a2e; " +
-                    "-fx-border-color: #FF6600; -fx-border-width: 2; -fx-cursor: hand;");
-            Label hiddenLabel = new Label("🫣\nHidden");
-            hiddenLabel.setStyle("-fx-text-fill: #FF6600; -fx-font-size: 12; " +
-                    "-fx-font-weight: bold; -fx-text-alignment: center;");
-            hiddenLabel.setWrapText(true);
-            button.setGraphic(hiddenLabel);
+            // Pour les cartes cachées: afficher l'image back.png
+            button.setStyle("-fx-padding: 0; -fx-background-color: transparent; " +
+                    "-fx-border-color: transparent; -fx-cursor: hand;");
+            ImageView backImageView = getBackImageView();
+            button.setGraphic(backImageView);
         }
 
         return button;
@@ -374,6 +371,35 @@ public class CardSelectionUI {
             }
         }
         return placeholder;
+    }
+
+    /**
+     * Charge l'image du dos de carte (back.png) pour les cartes cachées.
+     *
+     * @return un ImageView contenant l'image du dos de carte
+     */
+    private ImageView getBackImageView() {
+        Image img = null;
+
+        try {
+            File backFile = new File("Assets/Images/back.png");
+            if (backFile.exists()) {
+                img = new Image("file:///" + backFile.getAbsolutePath().replace("\\", "/"),
+                                60, 90, true, true);
+            } else {
+                System.err.println("Image back.png non trouvée: " + backFile.getAbsolutePath());
+                img = createPlaceholderImage();
+            }
+        } catch (Exception e) {
+            System.err.println("Erreur lors du chargement de back.png: " + e.getMessage());
+            img = createPlaceholderImage();
+        }
+
+        ImageView iv = new ImageView(img);
+        iv.setFitWidth(60);
+        iv.setFitHeight(90);
+        iv.setPreserveRatio(false);
+        return iv;
     }
 
     /**
