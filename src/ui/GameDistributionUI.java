@@ -18,7 +18,7 @@ import player.Player;
 /**
  * GameDistributionUI displays the card distribution phase with visual feedback.
  *
- * @author Jest Game Team
+ * @author Jest Game & Gatien Genevois & Sacha Himber
  * @version 1.0
  */
 public class GameDistributionUI {

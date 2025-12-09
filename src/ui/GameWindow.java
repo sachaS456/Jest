@@ -20,10 +20,12 @@ import javafx.stage.Stage;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.Node;
+import model.cards.Card;
 import model.game.Game;
 import model.game.GameState;
 import model.enums.Sign;
 import player.AI;
+import player.AIPlayer;
 import player.Human;
 import player.Player;
 import util.GameSaver;
@@ -31,6 +33,7 @@ import variant.GameVariant;
 import model.cards.SuitCard;
 import model.cards.JokerCard;
 
+import java.util.ArrayList;
 import java.util.Optional;
 import java.io.File;
 
@@ -38,7 +41,7 @@ import java.io.File;
  * Game window for managing player setup and game execution via GUI.
  * Handles player creation, turn management, and save game functionality.
  *
- * @author Jest Game Team
+ * @author Jest Game & Gatien Genevois & Sacha Himber
  * @version 1.0
  */
 public class GameWindow {
@@ -245,7 +248,7 @@ public class GameWindow {
                 alert.showAndWait();
             } else {
                 if (aiRadio.isSelected()) {
-                    game.addPlayer(new AI(playerName));
+                    game.addPlayer(new AIPlayer(playerName));
                 } else {
                     game.addPlayer(new player.HumanUIPlayer(playerName, primaryStage));
                 }
@@ -404,24 +407,45 @@ public class GameWindow {
             Thread.currentThread().interrupt();
         }
 
-        game.distribute();
+        // Créer l'interface de plateau animé avant la distribution
+        AnimatedGameBoardUI gameBoardUI = new AnimatedGameBoardUI(primaryStage, game);
+
+        // Assigner l'UI à tous les joueurs
+        for (Player player : game.getPlayers()) {
+            if (player instanceof AIPlayer) {
+                ((AIPlayer) player).setGameBoardUI(gameBoardUI);
+            } else if (player instanceof player.HumanUIPlayer) {
+                ((player.HumanUIPlayer) player).setGameBoardUI(gameBoardUI);
+            }
+        }
+
+        // Distribution personnalisée avec affichage du plateau
+        distributeWithUI(gameBoardUI);
+
+        try {
+            Thread.sleep(1500);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
 
         player.Player currentPlayer = game.getPlayersOrder();
 
         while (currentPlayer != null) {
             final player.Player playerToPlay = currentPlayer;
 
-            javafx.application.Platform.runLater(() -> {
-                showPlayerTurn(playerToPlay);
-            });
+            // Afficher le début du tour du joueur
+            gameBoardUI.showPlayerTurnStart(playerToPlay);
 
             try {
-                Thread.sleep(1000);
+                Thread.sleep(800);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
 
             currentPlayer = playerToPlay.playTurn(game);
+
+            // Mettre à jour l'affichage après le tour
+            gameBoardUI.updatePlayersDisplay();
 
             try {
                 Thread.sleep(500);
@@ -431,6 +455,135 @@ public class GameWindow {
         }
 
         game.getVariant().applyRoundEndRules(game);
+    }
+
+    /**
+     * Custom distribution that shows loading animation after human players finish their actions.
+     */
+    private void distributeWithUI(AnimatedGameBoardUI gameBoardUI) {
+        // Récupérer les cartes à distribuer (logique de Game.distribute())
+        ArrayList<Card> distributionPool = new ArrayList<>();
+
+        if (game.getRoundNumber() != 1) {
+            ArrayList<model.cards.Card> gameCards = new ArrayList<>();
+            ArrayList<model.cards.Card> playerCards = new ArrayList<>();
+
+            for (int i = 0; i < game.getPlayers().size() && !game.getCards().isEmpty(); i++) {
+                int random = (int) (game.getCards().size() * Math.random());
+                gameCards.add(game.getCards().remove(random));
+            }
+
+            for (Player player : game.getPlayers()) {
+                model.cards.Card removedCard = player.removeLastCardFromOffer();
+                if (removedCard != null) {
+                    removedCard.setVisible(true);
+                    playerCards.add(removedCard);
+                }
+            }
+
+            distributionPool.addAll(gameCards);
+            distributionPool.addAll(playerCards);
+        } else {
+            distributionPool = game.getCards();
+        }
+
+        // Distribution aux joueurs
+        int cardsNeeded = game.getPlayers().size() * 2;
+        boolean loadingShown = false;
+        int humanPlayerIndex = -1;
+
+        // Trouver l'index du premier joueur humain
+        for (int i = 0; i < game.getPlayers().size(); i++) {
+            if (!(game.getPlayers().get(i) instanceof AIPlayer)) {
+                humanPlayerIndex = i;
+                break;
+            }
+        }
+
+        if (distributionPool.size() < cardsNeeded) {
+            for (int i = 0; i < game.getPlayers().size(); i++) {
+                Player player = game.getPlayers().get(i);
+                if (!distributionPool.isEmpty()) {
+                    int random = (int) (distributionPool.size() * Math.random());
+                    model.cards.Card card1 = distributionPool.remove(random);
+                    player.chooseCardToHide(card1, null);
+
+                    // Afficher le loading après qu'un joueur humain ait choisi
+                    if (!loadingShown && i == humanPlayerIndex) {
+                        showLoadingAfterHumanChoice();
+                        loadingShown = true;
+                    }
+                }
+            }
+        } else {
+            for (int i = 0; i < game.getPlayers().size(); i++) {
+                Player player = game.getPlayers().get(i);
+                if (distributionPool.size() >= 2) {
+                    int random = (int) (distributionPool.size() * Math.random());
+                    model.cards.Card card1 = distributionPool.remove(random);
+                    random = (int) (distributionPool.size() * Math.random());
+                    model.cards.Card card2 = distributionPool.remove(random);
+                    player.chooseCardToHide(card1, card2);
+
+                    // Afficher le loading après qu'un joueur humain ait choisi
+                    if (!loadingShown && i == humanPlayerIndex) {
+                        showLoadingAfterHumanChoice();
+                        loadingShown = true;
+                    }
+                } else if (distributionPool.size() == 1) {
+                    model.cards.Card card1 = distributionPool.remove(0);
+                    player.chooseCardToHide(card1, null);
+
+                    // Afficher le loading après qu'un joueur humain ait choisi
+                    if (!loadingShown && i == humanPlayerIndex) {
+                        showLoadingAfterHumanChoice();
+                        loadingShown = true;
+                    }
+                } else {
+                    break;
+                }
+            }
+        }
+
+        // Après toute la distribution, afficher le plateau
+        javafx.application.Platform.runLater(() -> {
+            gameBoardUI.show();
+
+            // Vérifier s'il y a des IA pour afficher le message approprié
+            boolean hasAI = false;
+            for (Player player : game.getPlayers()) {
+                if (player instanceof AIPlayer) {
+                    hasAI = true;
+                    break;
+                }
+            }
+
+            if (hasAI) {
+                gameBoardUI.showAIPlayingMessage();
+            }
+        });
+
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    /**
+     * Shows a loading animation after a human player makes their choice.
+     */
+    private void showLoadingAfterHumanChoice() {
+        javafx.application.Platform.runLater(() -> {
+            LoadingUI loadingUI = new LoadingUI(primaryStage, "Other players are choosing their cards");
+            loadingUI.show();
+        });
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     /**

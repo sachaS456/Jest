@@ -29,7 +29,7 @@ import java.io.File;
  * CardSelectionUI handles the graphical display and selection of cards during gameplay.
  * Allows players to choose cards visually instead of through console input.
  *
- * @author Jest Game Team
+ * @author Jest Game & Gatien Genevois & Sacha Himber
  * @version 1.0
  */
 public class CardSelectionUI {
@@ -499,19 +499,26 @@ public class CardSelectionUI {
         cardsGrid.setPadding(new Insets(20));
 
         Button card1Button = createCardButton(card1, 1);
+        Button card2Button = createCardButton(card2, 2);
         card1Button.setPrefWidth(140);
         card1Button.setPrefHeight(180);
         card1Button.setOnAction(e -> {
-            selectedCard.set(1);
-            cardSelected = true;
+            if (!cardSelected) {
+                selectedCard.set(1);
+                cardSelected = true;
+                card1Button.setDisable(true);
+                card2Button.setDisable(true);
+            }
         });
-
-        Button card2Button = createCardButton(card2, 2);
         card2Button.setPrefWidth(140);
         card2Button.setPrefHeight(180);
         card2Button.setOnAction(e -> {
-            selectedCard.set(2);
-            cardSelected = true;
+            if (!cardSelected) {
+                selectedCard.set(2);
+                cardSelected = true;
+                card1Button.setDisable(true);
+                card2Button.setDisable(true);
+            }
         });
 
         cardsGrid.add(card1Button, 0, 0);

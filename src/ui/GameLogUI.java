@@ -19,7 +19,7 @@ import java.util.ArrayList;
  * GameLogUI displays a real-time log of game actions and events.
  * Shows all picks, plays, and important game events in chronological order.
  *
- * @author Jest Game Team
+ * @author Jest Game & Gatien Genevois & Sacha Himber
  * @version 1.0
  */
 public class GameLogUI {

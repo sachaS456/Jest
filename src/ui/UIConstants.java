@@ -6,7 +6,7 @@ import javafx.scene.paint.Color;
  * UIConstants contains all UI configuration constants and styles for the Jest game.
  * Centralizes color schemes, fonts, and layout dimensions.
  *
- * @author Jest Game Team
+ * @author Jest Game & Gatien Genevois & Sacha Himber
  * @version 1.0
  */
 public class UIConstants {

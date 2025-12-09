@@ -21,7 +21,7 @@ import player.HumanUIPlayer;
  * Main GUI entry point for the Jest card game.
  * Provides a JavaFX-based graphical interface for game setup and menus.
  *
- * @author Jest Game Team
+ * @author Jest Game & Gatien Genevois & Sacha Himber
  * @version 1.0
  */
 public class MainMenuUI extends Application {

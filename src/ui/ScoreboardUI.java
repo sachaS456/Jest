@@ -16,7 +16,7 @@ import player.Player;
  * ScoreboardUI displays the current standings and scores of all players during gameplay.
  * Shows Jest pile sizes, visible/hidden cards, and calculated scores.
  *
- * @author Jest Game Team
+ * @author Jest Game & Gatien Genevois & Sacha Himber
  * @version 1.0
  */
 public class ScoreboardUI {

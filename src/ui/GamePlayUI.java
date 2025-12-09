@@ -27,7 +27,7 @@ import java.util.ArrayList;
  * GamePlayUI handles the display of the game board during gameplay.
  * Shows players, their cards (visible/hidden), and the current game state.
  *
- * @author Jest Game Team
+ * @author Jest Game & Gatien Genevois & Sacha Himber
  * @version 1.0
  */
 public class GamePlayUI {
