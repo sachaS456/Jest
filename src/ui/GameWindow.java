@@ -492,11 +492,15 @@ public class GameWindow {
         boolean loadingShown = false;
         int humanPlayerIndex = -1;
 
-        // Trouver l'index du premier joueur humain
+        // Trouver l'index du premier joueur humain et définir les trophées
         for (int i = 0; i < game.getPlayers().size(); i++) {
-            if (!(game.getPlayers().get(i) instanceof AIPlayer)) {
-                humanPlayerIndex = i;
-                break;
+            Player player = game.getPlayers().get(i);
+            if (player instanceof player.HumanUIPlayer) {
+                player.HumanUIPlayer humanPlayer = (player.HumanUIPlayer) player;
+                humanPlayer.getCardSelectionUI().setTrophies(game.getTrophies());
+                if (humanPlayerIndex == -1) {
+                    humanPlayerIndex = i;
+                }
             }
         }
 
@@ -1063,6 +1067,7 @@ public class GameWindow {
         titleBox.setAlignment(Pos.CENTER);
         titleBox.setPadding(new Insets(40));
 
+        // ScrollPane pour le contenu
         VBox contentBox = new VBox(20);
         contentBox.setAlignment(Pos.CENTER);
         contentBox.setPadding(new Insets(40));
@@ -1071,11 +1076,11 @@ public class GameWindow {
         winnerLabel.setFont(Font.font("Arial", FontWeight.BOLD, 24));
         winnerLabel.setStyle("-fx-text-fill: #00FF00;");
 
-        Label scoresTitle = new Label("Final Scores:");
+        Label scoresTitle = new Label("Final Scores & Jests:");
         scoresTitle.setStyle("-fx-text-fill: #FFFF00; -fx-font-size: 16; -fx-font-weight: bold;");
 
-        VBox finalScoresBox = new VBox(10);
-        finalScoresBox.setAlignment(Pos.CENTER);
+        VBox playersDetailsBox = new VBox(15);
+        playersDetailsBox.setAlignment(Pos.CENTER);
 
         int maxScore = 0;
         for (player.Player p : game.getPlayers()) {
@@ -1083,12 +1088,10 @@ public class GameWindow {
             if (points > maxScore) maxScore = points;
         }
 
+        // Afficher chaque joueur avec son score et son Jest
         for (player.Player p : game.getPlayers()) {
-            int points = game.getVariant().calculatePoints(p);
-            String star = (points == maxScore) ? "⭐ " : "  ";
-            Label playerFinalScore = new Label(star + p.getName() + ": " + points + " points");
-            playerFinalScore.setStyle("-fx-text-fill: #00FFFF; -fx-font-size: 14;");
-            finalScoresBox.getChildren().add(playerFinalScore);
+            VBox playerBox = createPlayerJestDisplay(p, maxScore);
+            playersDetailsBox.getChildren().add(playerBox);
         }
 
         Label finalMessage = new Label("Thanks for playing Jest!");
@@ -1111,13 +1114,153 @@ public class GameWindow {
         buttonBox.setAlignment(Pos.CENTER);
         buttonBox.getChildren().addAll(mainMenuButton, exitButton);
 
-        contentBox.getChildren().addAll(winnerLabel, scoresTitle, finalScoresBox, finalMessage, buttonBox);
+        contentBox.getChildren().addAll(winnerLabel, scoresTitle, playersDetailsBox, finalMessage, buttonBox);
+
+        // Wrap dans un ScrollPane
+        javafx.scene.control.ScrollPane scrollPane = new javafx.scene.control.ScrollPane(contentBox);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setStyle("-fx-background: #1e1e1e; -fx-background-color: #1e1e1e;");
 
         root.setTop(titleBox);
-        root.setCenter(contentBox);
+        root.setCenter(scrollPane);
 
-        Scene scene = new Scene(root, 800, 600);
+        Scene scene = new Scene(root, 1000, 700);
         primaryStage.setScene(scene);
+    }
+
+    /**
+     * Creates a display for a player's Jest and score.
+     */
+    private VBox createPlayerJestDisplay(player.Player player, int maxScore) {
+        VBox playerBox = new VBox(10);
+        playerBox.setAlignment(Pos.CENTER);
+        playerBox.setPadding(new Insets(15));
+        playerBox.setStyle("-fx-background-color: #2a2a2a; -fx-border-color: #00FFFF; " +
+                "-fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10;");
+        playerBox.setMaxWidth(900);
+
+        // Player info and score
+        int points = game.getVariant().calculatePoints(player);
+        String star = (points == maxScore) ? "⭐ " : "  ";
+        String playerType = player instanceof AI ? "🤖" : "👤";
+
+        Label playerNameLabel = new Label(star + playerType + " " + player.getName() + " - " + points + " points");
+        playerNameLabel.setFont(Font.font("Arial", FontWeight.BOLD, 18));
+        playerNameLabel.setStyle("-fx-text-fill: #00FF00;");
+
+        // Jest cards
+        Label jestLabel = new Label("Jest (" + player.getJest().size() + " cards):");
+        jestLabel.setStyle("-fx-text-fill: #FFFF00; -fx-font-size: 14;");
+
+        // Display cards in a horizontal flow
+        javafx.scene.layout.FlowPane cardsFlow = new javafx.scene.layout.FlowPane();
+        cardsFlow.setHgap(8);
+        cardsFlow.setVgap(8);
+        cardsFlow.setAlignment(Pos.CENTER);
+        cardsFlow.setPadding(new Insets(10));
+        cardsFlow.setStyle("-fx-background-color: #1a1a1a; -fx-border-radius: 5; -fx-background-radius: 5;");
+
+        for (model.cards.Card card : player.getJest()) {
+            VBox cardDisplay = createSmallCardDisplay(card);
+            cardsFlow.getChildren().add(cardDisplay);
+        }
+
+        playerBox.getChildren().addAll(playerNameLabel, jestLabel, cardsFlow);
+        return playerBox;
+    }
+
+    /**
+     * Creates a small card display with image.
+     */
+    private VBox createSmallCardDisplay(model.cards.Card card) {
+        VBox cardBox = new VBox(3);
+        cardBox.setAlignment(Pos.CENTER);
+        cardBox.setPadding(new Insets(5));
+        cardBox.setStyle("-fx-background-color: #2a2a2a; -fx-border-color: #FFD700; " +
+                "-fx-border-width: 1; -fx-border-radius: 3; -fx-background-radius: 3;");
+
+        // Card image
+        ImageView cardImageView = getSmallCardImageView(card);
+        cardBox.getChildren().add(cardImageView);
+
+        return cardBox;
+    }
+
+    /**
+     * Loads a small card image for final results display.
+     */
+    private ImageView getSmallCardImageView(model.cards.Card card) {
+        Image img = null;
+
+        try {
+            String imagePath = null;
+
+            if (card instanceof SuitCard) {
+                SuitCard suitCard = (SuitCard) card;
+                int value = suitCard.getValue();
+                String color = suitCard.getColor().toString().toLowerCase();
+                String sign = convertSignToImageName(suitCard.getSign());
+
+                String baseImageName = value + "_" + color + "_" + sign;
+                String specialSuffix = getSpecialCardSuffix(suitCard);
+
+                if (specialSuffix != null) {
+                    imagePath = "Assets/Images/" + baseImageName + specialSuffix + ".png";
+                    java.io.File specialFile = new java.io.File(imagePath);
+                    if (!specialFile.exists()) {
+                        imagePath = "Assets/Images/" + baseImageName + ".png";
+                    }
+                } else {
+                    imagePath = "Assets/Images/" + baseImageName + ".png";
+                }
+            } else if (card instanceof JokerCard) {
+                JokerCard jokerCard = (JokerCard) card;
+                String jokerImagePath = "Assets/Images/joker_most_cards.png";
+                java.io.File jokerSpecialFile = new java.io.File(jokerImagePath);
+
+                if (jokerCard.getCardEffectCode().equals("MOST_CARDS") && jokerSpecialFile.exists()) {
+                    imagePath = jokerImagePath;
+                } else {
+                    imagePath = "Assets/Images/joker.png";
+                }
+            }
+
+            if (imagePath != null) {
+                java.io.File imageFile = new java.io.File(imagePath);
+                if (imageFile.exists()) {
+                    img = new Image("file:///" + imageFile.getAbsolutePath().replace("\\", "/"),
+                                    50, 75, true, true);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error loading card image: " + e.getMessage());
+        }
+
+        if (img == null || img.isError()) {
+            img = createSmallPlaceholderImage();
+        }
+
+        ImageView iv = new ImageView(img);
+        iv.setFitWidth(50);
+        iv.setFitHeight(75);
+        iv.setPreserveRatio(false);
+        return iv;
+    }
+
+    /**
+     * Creates a small placeholder image.
+     */
+    private Image createSmallPlaceholderImage() {
+        javafx.scene.image.WritableImage placeholder = new javafx.scene.image.WritableImage(50, 75);
+        javafx.scene.image.PixelWriter writer = placeholder.getPixelWriter();
+        javafx.scene.paint.Color fillColor = javafx.scene.paint.Color.web("#666666");
+
+        for (int y = 0; y < 75; y++) {
+            for (int x = 0; x < 50; x++) {
+                writer.setColor(x, y, fillColor);
+            }
+        }
+        return placeholder;
     }
 
 

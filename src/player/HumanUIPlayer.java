@@ -50,6 +50,15 @@ public class HumanUIPlayer extends Human {
     }
 
     /**
+     * Gets the card selection UI.
+     *
+     * @return the card selection UI
+     */
+    public CardSelectionUI getCardSelectionUI() {
+        return cardSelectionUI;
+    }
+
+    /**
      * Makes a choice using the graphical UI instead of console input.
      *
      * @param min the minimum valid choice value (inclusive)
@@ -102,10 +111,13 @@ public class HumanUIPlayer extends Human {
     }
 
     /**
-     * Override playTurn to show the board after picking a card.
+     * Override playTurn to show the board after picking a card and set trophies.
      */
     @Override
     public Player playTurn(Game game) {
+        // Set trophies before turn
+        cardSelectionUI.setTrophies(game.getTrophies());
+
         // Call parent implementation
         Player nextPlayer = super.playTurn(game);
 
@@ -129,6 +141,17 @@ public class HumanUIPlayer extends Human {
         }
 
         return nextPlayer;
+    }
+
+    /**
+     * Override chooseCardToHide to set trophies before hiding.
+     */
+    @Override
+    public void chooseCardToHide(Card card1, Card card2) {
+        // Try to get trophies from the current game context
+        // Note: This requires having access to the game, which we don't have here
+        // The trophies will be set through playTurn when available
+        super.chooseCardToHide(card1, card2);
     }
 }
 

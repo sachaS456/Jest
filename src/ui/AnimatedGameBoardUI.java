@@ -71,6 +71,10 @@ public class AnimatedGameBoardUI {
 
         mainLayout.setCenter(centerPlayersBox);
 
+        // Right: Trophies display
+        VBox trophiesPanel = createTrophiesPanel();
+        mainLayout.setRight(trophiesPanel);
+
         // Bottom: Current action
         currentActionLabel = new Label("");
         currentActionLabel.setFont(Font.font("Arial", FontWeight.BOLD, 16));
@@ -82,7 +86,7 @@ public class AnimatedGameBoardUI {
 
         mainLayout.setBottom(currentActionLabel);
 
-        Scene scene = new Scene(mainLayout, 1200, 800);
+        Scene scene = new Scene(mainLayout, 1400, 800);
         primaryStage.setScene(scene);
     }
 
@@ -112,6 +116,148 @@ public class AnimatedGameBoardUI {
     }
 
     /**
+     * Creates the trophies panel on the right side.
+     */
+    private VBox createTrophiesPanel() {
+        VBox panel = new VBox(10);
+        panel.setPadding(new Insets(15));
+        panel.setStyle("-fx-background-color: #1a1a1a; -fx-border-color: #FFD700; " +
+                "-fx-border-width: 0 0 0 2;");
+        panel.setAlignment(Pos.TOP_CENTER);
+        panel.setPrefWidth(250);
+        panel.setMaxWidth(250);
+
+        // Title
+        Label titleLabel = new Label("🏆 Trophies 🏆");
+        titleLabel.setFont(Font.font("Arial", FontWeight.BOLD, 20));
+        titleLabel.setTextFill(Color.web("#FFD700"));
+        titleLabel.setPadding(new Insets(0, 0, 10, 0));
+
+        // Trophies count
+        Label countLabel = new Label(game.getTrophies().length + " trophy cards");
+        countLabel.setFont(Font.font("Arial", 12));
+        countLabel.setTextFill(Color.web("#FFFFFF"));
+        countLabel.setPadding(new Insets(0, 0, 15, 0));
+
+        panel.getChildren().addAll(titleLabel, countLabel);
+
+        // Display each trophy card
+        Card[] trophies = game.getTrophies();
+        if (trophies != null && trophies.length > 0) {
+            VBox trophiesContainer = new VBox(8);
+            trophiesContainer.setAlignment(Pos.TOP_CENTER);
+
+            for (Card trophy : trophies) {
+                if (trophy != null) {
+                    VBox trophyBox = createTrophyCardDisplay(trophy);
+                    trophiesContainer.getChildren().add(trophyBox);
+                }
+            }
+
+            // Wrap in a ScrollPane if there are many trophies
+            javafx.scene.control.ScrollPane scrollPane = new javafx.scene.control.ScrollPane(trophiesContainer);
+            scrollPane.setFitToWidth(true);
+            scrollPane.setStyle("-fx-background: #1a1a1a; -fx-background-color: #1a1a1a;");
+            scrollPane.setPrefHeight(600);
+
+            panel.getChildren().add(scrollPane);
+        } else {
+            Label noTrophiesLabel = new Label("No trophies yet");
+            noTrophiesLabel.setTextFill(Color.web("#888888"));
+            panel.getChildren().add(noTrophiesLabel);
+        }
+
+        return panel;
+    }
+
+    /**
+     * Creates a display for a single trophy card.
+     */
+    private VBox createTrophyCardDisplay(Card card) {
+        VBox cardBox = new VBox(5);
+        cardBox.setAlignment(Pos.CENTER);
+        cardBox.setPadding(new Insets(8));
+        cardBox.setStyle("-fx-background-color: #2a2a2a; -fx-border-color: #FFD700; " +
+                "-fx-border-width: 1; -fx-border-radius: 5; -fx-background-radius: 5;");
+
+        // Card image (smaller version)
+        ImageView cardImageView = getTrophyCardImageView(card);
+
+        // Card effect description
+        Label effectLabel = new Label(card.getCardEffectCode());
+        effectLabel.setFont(Font.font("Arial", FontWeight.BOLD, 10));
+        effectLabel.setTextFill(Color.web("#FFD700"));
+        effectLabel.setWrapText(true);
+        effectLabel.setMaxWidth(200);
+        effectLabel.setAlignment(Pos.CENTER);
+        effectLabel.setStyle("-fx-text-alignment: center;");
+
+        cardBox.getChildren().addAll(cardImageView, effectLabel);
+        return cardBox;
+    }
+
+    /**
+     * Loads a trophy card image (smaller size).
+     */
+    private ImageView getTrophyCardImageView(Card card) {
+        Image img = null;
+
+        try {
+            String imagePath = null;
+
+            if (card instanceof SuitCard) {
+                SuitCard suitCard = (SuitCard) card;
+                int value = suitCard.getValue();
+                String color = suitCard.getColor().toString().toLowerCase();
+                String sign = convertSignToImageName(suitCard.getSign());
+
+                String baseImageName = value + "_" + color + "_" + sign;
+                String specialSuffix = getSpecialCardSuffix(suitCard);
+
+                if (specialSuffix != null) {
+                    imagePath = "Assets/Images/" + baseImageName + specialSuffix + ".png";
+                    File specialFile = new File(imagePath);
+                    if (!specialFile.exists()) {
+                        imagePath = "Assets/Images/" + baseImageName + ".png";
+                    }
+                } else {
+                    imagePath = "Assets/Images/" + baseImageName + ".png";
+                }
+            } else if (card instanceof JokerCard) {
+                JokerCard jokerCard = (JokerCard) card;
+                String jokerImagePath = "Assets/Images/joker_most_cards.png";
+                File jokerSpecialFile = new File(jokerImagePath);
+
+                if (jokerCard.getCardEffectCode().equals("MOST_CARDS") && jokerSpecialFile.exists()) {
+                    imagePath = jokerImagePath;
+                } else {
+                    imagePath = "Assets/Images/joker.png";
+                }
+            }
+
+            if (imagePath != null) {
+                File imageFile = new File(imagePath);
+                if (imageFile.exists()) {
+                    img = new Image("file:///" + imageFile.getAbsolutePath().replace("\\", "/"),
+                                    60, 90, true, true);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error loading trophy card image: " + e.getMessage());
+        }
+
+        if (img == null || img.isError()) {
+            img = createPlaceholderImage();
+        }
+
+        ImageView iv = new ImageView(img);
+        iv.setFitWidth(60);
+        iv.setFitHeight(90);
+        iv.setPreserveRatio(false);
+        return iv;
+    }
+
+    /**
      * Updates the players display with their current offers.
      */
     public void updatePlayersDisplay() {
@@ -121,6 +267,12 @@ public class AnimatedGameBoardUI {
             for (Player player : game.getPlayers()) {
                 HBox playerBox = createPlayerBox(player);
                 centerPlayersBox.getChildren().add(playerBox);
+            }
+
+            // Also update trophies panel if it exists
+            if (mainLayout != null && mainLayout.getRight() != null) {
+                VBox trophiesPanel = createTrophiesPanel();
+                mainLayout.setRight(trophiesPanel);
             }
         });
     }
