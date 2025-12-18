@@ -1,151 +1,151 @@
 # Jest Card Game
 
-## Description du projet
+## Project Description
 
-Jest est un jeu de cartes stratégique implémenté en Java avec une interface graphique JavaFX. Le jeu propose deux modes d'exécution : une version console (noyau du jeu) et une version graphique complète avec interface utilisateur.
+Jest is a strategic card game implemented in Java with a JavaFX graphical interface. The game offers two execution modes: a console version (game core) and a complete graphical version with user interface.
 
-### Fonctionnalités principales
+### Main Features
 
-- **Mode graphique** : Interface utilisateur complète avec JavaFX
-  - Menu principal avec options New Game et Load Game
-  - Affichage visuel des cartes avec images
-  - Animations pour les actions des IA
-  - Sauvegarde et chargement de partie
-  - Affichage des trophées et scores
+- **Graphical mode**: Complete user interface with JavaFX
+  - Main menu with New Game and Load Game options
+  - Visual card display with images
+  - Animations for AI actions
+  - Save and load game
+  - Trophy and score display
   
-- **Mode console** : Version texte du jeu
-  - Interaction par ligne de commande
-  - Toutes les fonctionnalités du jeu
+- **Console mode**: Text version of the game
+  - Command-line interaction
+  - All game features
 
-- **Variantes de jeu** : Plusieurs variantes disponibles incluant le mode Classic
-- **Joueurs IA** : Possibilité de jouer contre des intelligences artificielles
-- **Cartes d'extension** : Support des cartes spéciales (Joker, cartes avec effets)
+- **Game variants**: Multiple variants available including Classic mode
+- **AI players**: Ability to play against artificial intelligences
+- **Extension cards**: Support for special cards (Joker, cards with effects)
 
-## Prérequis
+## Prerequisites
 
-- **Java 11 ou supérieur**
-- **JavaFX SDK** (pour le mode graphique)
+- **Java 11 or higher**
+- **JavaFX SDK** (for graphical mode)
 
-## Bibliothèques utilisées
+## Libraries Used
 
 ### JavaFX
-Framework pour l'interface graphique :
-- `javafx.application.Application` - Gestion de l'application
-- `javafx.stage.Stage` - Fenêtres de l'application
-- `javafx.scene.Scene` - Scènes et contenus
+Framework for graphical interface:
+- `javafx.application.Application` - Application management
+- `javafx.stage.Stage` - Application windows
+- `javafx.scene.Scene` - Scenes and content
 - `javafx.scene.layout.*` - Layouts (VBox, HBox, BorderPane, etc.)
-- `javafx.scene.control.*` - Composants UI (Button, Label, TextField, etc.)
-- `javafx.scene.image.*` - Gestion des images des cartes
-- `javafx.animation.*` - Animations pour les déplacements de cartes
+- `javafx.scene.control.*` - UI components (Button, Label, TextField, etc.)
+- `javafx.scene.image.*` - Card image management
+- `javafx.animation.*` - Animations for card movements
 
-### Bibliothèques Java Standard
-- `java.io.*` - Gestion des fichiers (sauvegarde/chargement)
-- `java.util.*` - Collections et utilitaires
+### Standard Java Libraries
+- `java.io.*` - File management (save/load)
+- `java.util.*` - Collections and utilities
 
-## Comment lancer le projet
+## How to Run the Project
 
-### Mode graphique (Interface utilisateur)
+### Graphical mode (User interface)
 
-Pour lancer le jeu avec l'interface graphique :
+To launch the game with the graphical interface:
 
-**Avec un IDE (IntelliJ IDEA, Eclipse, etc.) :**
-1. Ouvrez le projet
-2. Localisez le fichier `src/ui/GameWindow.java`
-3. Cliquez droit et sélectionnez "Run 'GameWindow.main()'"
+**With an IDE (IntelliJ IDEA, Eclipse, etc.):**
+1. Open the project
+2. Locate the file `src/ui/GameWindow.java`
+3. Right-click and select "Run 'GameWindow.main()'"
 
-**En ligne de commande :**
+**Command line:**
 ```bash
 java ui.GameWindow
 ```
 
-### Mode console (Noyau du jeu)
+### Console mode (Game core)
 
-Pour lancer le jeu en mode console :
+To launch the game in console mode:
 
-**Avec un IDE :**
-1. Localisez le fichier `src/model/game/Game.java`
-2. Cliquez droit et sélectionnez "Run 'Game.main()'"
+**With an IDE:**
+1. Locate the file `src/model/game/Game.java`
+2. Right-click and select "Run 'Game.main()'"
 
-**En ligne de commande :**
+**Command line:**
 ```bash
 java model.game.Game
 ```
 
-## Structure du projet
+## Project Structure
 
 ```
 Jest/
 ├── src/
 │   ├── model/
 │   │   ├── game/
-│   │   │   └── Game.java              # Noyau du jeu (mode console)
-│   │   ├── cards/                      # Classes des cartes
+│   │   │   └── Game.java              # Game core (console mode)
+│   │   ├── cards/                      # Card classes
 │   │   │   ├── Card.java
 │   │   │   ├── SuitCard.java
 │   │   │   └── ...
-│   │   └── enums/                      # Énumérations (couleurs, enseignes)
+│   │   └── enums/                      # Enumerations (colors, suits)
 │   ├── player/
 │   │   ├── Player.java
 │   │   ├── Human.java
 │   │   ├── HumanUIPlayer.java
 │   │   ├── AIPlayer.java
 │   │   └── AI.java
-│   ├── strategy/                       # Stratégies de jeu des IA
+│   ├── strategy/                       # AI game strategies
 │   │   ├── IPlayStrategy.java
 │   │   ├── RandomStrategy.java
 │   │   ├── RiskyStrategy.java
 │   │   └── SafeStrategy.java
-│   ├── ui/                             # Interface graphique
-│   │   ├── MainMenuUI.java            # Menu principal
-│   │   ├── CardSelectionUI.java       # Interface de sélection des cartes
-│   │   ├── AnimatedGameBoardUI.java   # Plateau de jeu animé
-│   │   ├── GameWindow.java            # Fenêtre principale du jeu
+│   ├── ui/                             # Graphical interface
+│   │   ├── MainMenuUI.java            # Main menu
+│   │   ├── CardSelectionUI.java       # Card selection interface
+│   │   ├── AnimatedGameBoardUI.java   # Animated game board
+│   │   ├── GameWindow.java            # Main game window
 │   │   └── ...
-│   ├── variant/                        # Variantes du jeu
+│   ├── variant/                        # Game variants
 │   │   ├── ClassicVariant.java
 │   │   └── ...
-│   ├── visitor/                        # Pattern Visitor pour les cartes
+│   ├── visitor/                        # Visitor pattern for cards
 │   └── util/
-│       └── GameSaver.java             # Sauvegarde/chargement de partie
+│       └── GameSaver.java             # Save/load game
 ├── Assets/
-│   └── Images/                         # Images des cartes
+│   └── Images/                         # Card images
 │       ├── 1_black_club.png
 │       ├── 1_black_spade.png
-│       ├── back.png                   # Image pour les cartes cachées
+│       ├── back.png                   # Image for hidden cards
 │       └── ...
-├── jest_saves/                         # Dossier des sauvegardes
+├── jest_saves/                         # Save files folder
 │   ├── game1.jest
 │   └── game2.jest
-└── doc/                                # Documentation et diagrammes UML
+└── doc/                                # Documentation and UML diagrams
 ```
 
-## Comment jouer
+## How to Play
 
-### Mode graphique
+### Graphical mode
 
-1. **Lancer le jeu** : Exécutez `ui.GameWindow`
-2. **Menu principal** :
-   - **New Game** : Commencer une nouvelle partie
-   - **Load Game** : Charger une partie sauvegardée
-3. **Configuration** :
-   - Sélectionnez une variante de jeu
-   - Entrez les noms des joueurs (2-4 joueurs)
-   - Pour ajouter une IA, cochez la case "IA" lors de la saisie d'un nom
-4. **Déroulement du jeu** :
-   - Chaque joueur choisit une carte à piocher
-   - Chaque joueur choisit une carte à cacher
-   - Visualisez les animations des IA
-   - Consultez les trophées et scores en cours de partie
-5. **Sauvegarde** : Utilisez le bouton "Save Game" à la fin de chaque round
-6. **Fin de partie** : Les scores finaux et jests sont affichés
+1. **Launch the game**: Run `ui.GameWindow`
+2. **Main menu**:
+   - **New Game**: Start a new game
+   - **Load Game**: Load a saved game
+3. **Configuration**:
+   - Select a game variant
+   - Enter player names (2-4 players)
+   - To add an AI, check the "AI" box when entering a name
+4. **Gameplay**:
+   - Each player chooses a card to draw
+   - Each player chooses a card to hide
+   - Watch AI animations
+   - View trophies and scores during the game
+5. **Save**: Use the "Save Game" button at the end of each round
+6. **End of game**: Final scores and jests are displayed
 
-### Mode console
+### Console mode
 
-1. **Lancer le jeu** : Exécutez `model.game.Game`
-2. Suivez les instructions affichées dans la console
-3. Saisissez vos choix en utilisant les numéros proposés
+1. **Launch the game**: Run `model.game.Game`
+2. Follow the instructions displayed in the console
+3. Enter your choices using the proposed numbers
 
-## Auteurs
+## Authors
 
 - **Gatien Genevois**
 - **Sacha Himber**
@@ -156,5 +156,4 @@ Jest/
 
 ## License
 
-Projet éducatif - Tous droits réservés
-
+Educational project - All rights reserved
